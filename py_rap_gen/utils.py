@@ -47,19 +47,21 @@ def _create_tone_list(counter):
     for k in counter['children']:
         chars = mecab.parse(k).strip().split()[0]
         tones = "".join(_convert_tones(chars))
-        if tones != "":
-            if tones not in tone_list:
-                tone_list[tones] = []
-            tone_list[tones].append(chars)
+        if tones == "":
+            continue
+        if tones not in tone_list:
+            tone_list[tones] = []
+        tone_list[tones].append(chars)
 
-            for k1 in counter['children'][k]['children']:
-                chars1 = mecab.parse(k1).strip().split()[0]
-                tones1 = "".join(_convert_tones(chars1))
-                if tones1 != "":
-                    tones_double = tones + tones1
-                    if tones_double not in tone_list:
-                        tone_list[tones_double] = []
-                    tone_list[tones_double].append(chars + chars1)
+        for k1 in counter['children'][k]['children']:
+            chars1 = mecab.parse(k1).strip().split()[0]
+            tones1 = "".join(_convert_tones(chars1))
+            if tones1 == "":
+                continue
+            tones_double = tones + tones1
+            if tones_double not in tone_list:
+                tone_list[tones_double] = []
+            tone_list[tones_double].append(chars + chars1)
     return tone_list
 
 
