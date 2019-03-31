@@ -3,6 +3,8 @@
 
 import pickle
 import MeCab
+import numpy as np
+
 
 mecab = MeCab.Tagger("-F%f[7]\s -U\s")
 
@@ -22,6 +24,7 @@ mini = ['ァ', 'ィ', 'ゥ', 'ェ', 'ォ', 'ャ', 'ュ', 'ョ']
 
 def _convert_tones(kana):
     """Convert katakana to tone.
+
     Args:
         kana (List[String]): kana list.
     Return:
@@ -63,6 +66,51 @@ def _create_tone_list(counter):
                 tone_list[tones_double] = []
             tone_list[tones_double].append(chars + chars1)
     return tone_list
+
+
+def measure_levenshtein(word1, word2):
+    """Return levenshtein distance between word1 and word2
+
+    Aarg:
+        word1 (str): target first word.
+        word2 (str): target second word.
+    Return:
+        distance (int): levenshtein distance between word1 and word2.
+    """
+    l_w1 = len(word1)
+    l_w2 = len(word2)
+    distances = np.zeros((l_w1 + 1, l_w2 + 1), dtype=np.int32)
+
+    for i in range(l_w1 + 1):
+        distances[i][0] = i
+
+    for j in range(l_w2 + 1):
+        distances[0][j] = j
+
+    for i in range(1, l_w1 + 1):
+        for j in range(1, l_w2 + 1):
+            x = 1
+            if word1[i - 1] == word2[j - 1]:
+                x = 0
+
+            distances[i][j] = min(
+                distances[i - 1][j] + 1,
+                distances[i][j - 1] + 1,
+                distances[i - 1][j - 1] + x)
+    return distances[l_w1][l_w2]
+
+
+def get_match_word(word, tone_list):
+    chars = mecab.parse(word).strip().split()[0]
+    tones = "".join(_convert_tones(chars))
+
+    distances = []
+    for t in tone_list:
+        l = measure_levenshtein(tones, t)
+        distances.append((l, t))
+
+    distance = sorted(distances, key=lambda x: x[0])[0]
+    return tone_list[distance[1]]
 
 
 # with open('mecab_tone_2gram.pkl', 'wb') as w:

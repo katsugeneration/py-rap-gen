@@ -49,3 +49,22 @@ def test_create_tone_list():
         "uoiau": ['ウゴキダス']
     }
     eq_(expected, ret)
+
+
+def test_measure_levenshtein():
+    eq_(0, utils.measure_levenshtein('aaa', 'aaa'))
+    eq_(1, utils.measure_levenshtein('aaa', 'aaab'))
+    eq_(1, utils.measure_levenshtein('aaa', 'aac'))
+    eq_(2, utils.measure_levenshtein('aaa', 'aacb'))
+
+
+def test_get_match_word():
+    tone_list = {
+        "aaa": ['アタマ'],
+        "aaaa": ['アタマガ', 'アタマハ'],
+        "uoi": ['ウゴキ'],
+        "uoia": ['ウゴキハ'],
+        "uoiau": ['ウゴキダス']
+    }
+    eq_(['アタマ'], utils.get_match_word("逆さ", tone_list))
+    eq_(['ウゴキダス'], utils.get_match_word("動き出すか", tone_list))
