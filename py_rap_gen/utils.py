@@ -1,6 +1,7 @@
 # Limitations under the MIT License.
 # Copyright 2019 Katsuya Shimabukuro.
 
+import random
 import pickle
 import MeCab
 import numpy as np
@@ -54,17 +55,17 @@ def _create_tone_list(counter):
             continue
         if tones not in tone_list:
             tone_list[tones] = []
-        tone_list[tones].append(chars)
+        tone_list[tones].append(k)
 
-        for k1 in counter['children'][k]['children']:
-            chars1 = mecab.parse(k1).strip().split()[0]
-            tones1 = "".join(_convert_tones(chars1))
-            if tones1 == "":
-                continue
-            tones_double = tones + tones1
-            if tones_double not in tone_list:
-                tone_list[tones_double] = []
-            tone_list[tones_double].append(chars + chars1)
+        # for k1 in counter['children'][k]['children']:
+        #     chars1 = mecab.parse(k1).strip().split()[0]
+        #     tones1 = "".join(_convert_tones(chars1))
+        #     if tones1 == "":
+        #         continue
+        #     tones_double = tones + tones1
+        #     if tones_double not in tone_list:
+        #         tone_list[tones_double] = []
+        #     tone_list[tones_double].append(k + k1)
     return tone_list
 
 
@@ -121,9 +122,10 @@ def get_match_word(word, tone_list):
     return tone_list[distance[1]]
 
 
+# with open('mecab_tone_2gram.pkl', 'wb') as w:
+#     pickle.dump(_create_tone_list(counter), w, pickle.HIGHEST_PROTOCOL)
+
 with open('mecab_tone_2gram.pkl', 'rb') as w:
     tone_list = pickle.load(w)
 
-import random
-for w in ['君', 'は', 'まるで', '俺', 'の', '太陽']:
-    print(random.choice(get_match_word(w, tone_list)))
+print([random.choice(get_match_word(w, tone_list)) for w in ['君', 'は', 'まるで', '俺', 'の', '太陽']])

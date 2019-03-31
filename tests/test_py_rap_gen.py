@@ -42,11 +42,11 @@ def test_create_tone_list():
     }
     ret = utils._create_tone_list(counter)
     expected = {
-        "aaa": ['アタマ'],
-        "aaaa": ['アタマガ', 'アタマハ'],
-        "uoi": ['ウゴキ'],
-        "uoia": ['ウゴキハ'],
-        "uoiau": ['ウゴキダス']
+        "aaa": ['頭'],
+        # "aaaa": ['頭が', '頭は'],
+        "uoi": ['動き'],
+        # "uoia": ['動きは'],
+        # "uoiau": ['動き出す']
     }
     eq_(expected, ret)
 
@@ -60,11 +60,11 @@ def test_measure_levenshtein():
 
 def test_get_match_word():
     tone_list = {
-        "aaa": ['アタマ'],
-        "aaaa": ['アタマガ', 'アタマハ'],
-        "uoi": ['ウゴキ'],
-        "uoia": ['ウゴキハ'],
-        "uoiau": ['ウゴキダス']
+        "aaa": ['頭'],
+        "aaaa": ['頭が', '頭は'],
+        "uoi": ['動き'],
+        "uoia": ['動きは'],
+        "uoiau": ['動き出す']
     }
-    eq_(['アタマ'], utils.get_match_word("逆さ", tone_list))
-    eq_(['ウゴキダス'], utils.get_match_word("動き出すか", tone_list))
+    eq_(['頭'], utils.get_match_word("逆さ", tone_list))
+    eq_(['動き出す'], utils.get_match_word("動き出すか", tone_list))
