@@ -101,6 +101,14 @@ def measure_levenshtein(word1, word2):
 
 
 def get_match_word(word, tone_list):
+    """Return tone match words to word.
+
+    Aarg:
+        word (str): target word.
+        tone_list (str): tone dictionary.
+    Return:
+        words (List[String]): match word list.
+    """
     chars = mecab.parse(word).strip().split()[0]
     tones = "".join(_convert_tones(chars))
 
@@ -113,5 +121,9 @@ def get_match_word(word, tone_list):
     return tone_list[distance[1]]
 
 
-# with open('mecab_tone_2gram.pkl', 'wb') as w:
-#     pickle.dump(_create_tone_list(counter), w, pickle.HIGHEST_PROTOCOL)
+with open('mecab_tone_2gram.pkl', 'rb') as w:
+    tone_list = pickle.load(w)
+
+import random
+for w in ['君', 'は', 'まるで', '俺', 'の', '太陽']:
+    print(random.choice(get_match_word(w, tone_list)))
