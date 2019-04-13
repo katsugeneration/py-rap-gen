@@ -30,3 +30,17 @@ def test_mecab_case2():
     eq_(sentence.words[6].base, "動ける")
     eq_(sentence.words[7].surface, "ない")
     eq_(sentence.words[7].pos, "助動詞")
+
+
+def test_mecab_case3():
+    sentence = mecab.parse("ゲスの極み乙女。")
+    eq_(sentence.words[0].surface, "ゲス")
+    eq_(sentence.words[0].pos, "名詞")
+    eq_(sentence.words[1].surface, "の")
+    eq_(sentence.words[1].pos, "助詞")
+    eq_(sentence.words[2].surface, "極み")
+    eq_(sentence.words[2].pos, "名詞")
+    eq_(sentence.words[3].surface, "乙女")
+    eq_(sentence.words[3].pos, "名詞")
+    eq_(sentence.words[4].surface, "。")
+    eq_(sentence.words[4].pos, "記号")

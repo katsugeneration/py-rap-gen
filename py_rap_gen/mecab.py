@@ -31,12 +31,12 @@ class Word(object):
             base (str): word base format string.
             yomi (str): word surface yomi string.
         """
+        surface = output.split("\t")[0].strip()
         parts = output.split("\t")[1].strip().split(",")
         pos = parts[0]
         pos1 = parts[1]
-        base = parts[6]
-        yomi = parts[7]
-        surface = output.split("\t")[0].strip()
+        base = parts[6] if '*' != parts[6] else surface
+        yomi = parts[7] if len(parts) >= 8 else surface
         return pos, pos1, surface, base, yomi
 
 
