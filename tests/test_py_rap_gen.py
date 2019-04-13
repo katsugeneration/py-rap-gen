@@ -66,5 +66,16 @@ def test_get_match_word():
         "uoia": ['動きは'],
         "uoiau": ['動き出す']
     }
-    eq_(['頭'], utils.get_match_word("逆さ", tone_list))
-    eq_(['動き出す'], utils.get_match_word("動き出すか", tone_list))
+    eq_(['頭'], utils.get_match_word("サカサ", tone_list))
+    eq_(['動き出す'], utils.get_match_word("ウゴキダスカ", tone_list))
+
+
+def test_generate_rap():
+    tone_list = {
+        "aaa": ['頭'],
+        "aaaa": ['頭が', '頭は'],
+        "uoi": ['動き'],
+        "uoia": ['動きは'],
+        "uoiau": ['動き出す']
+    }
+    eq_('頭が', utils.generate_rap("逆さが", tone_list))

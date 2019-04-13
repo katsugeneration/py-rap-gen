@@ -3,11 +3,9 @@
 
 import random
 import pickle
-import MeCab
+from py_rap_gen import mecab
 import numpy as np
 
-
-mecab = MeCab.Tagger("-F%f[7]\s -U\s")
 
 with open('mecab_2gram.pkl', 'rb') as f:
     counter = pickle.load(f)
@@ -49,7 +47,7 @@ def _create_tone_list(counter):
     """
     tone_list = {}
     for k in counter['children']:
-        chars = mecab.parse(k).strip().split()[0]
+        chars = mecab.parse(k).words[0].yomi
         tones = "".join(_convert_tones(chars))
         if tones == "":
             continue
@@ -101,17 +99,16 @@ def measure_levenshtein(word1, word2):
     return distances[l_w1][l_w2]
 
 
-def get_match_word(word, tone_list):
+def get_match_word(yomi, tone_list):
     """Return tone match words to word.
 
     Aarg:
-        word (str): target word.
+        yomi (str): target word yomi.
         tone_list (str): tone dictionary.
     Return:
         words (List[String]): match word list.
     """
-    chars = mecab.parse(word).strip().split()[0]
-    tones = "".join(_convert_tones(chars))
+    tones = "".join(_convert_tones(yomi))
 
     distances = []
     for t in tone_list:
@@ -122,10 +119,24 @@ def get_match_word(word, tone_list):
     return tone_list[distance[1]]
 
 
+def generate_rap(s, tone_list):
+    """Return generated rap.
+
+    Aarg:
+        s (str): target sentence.
+        tone_list (str): tone dictionary.
+    Return:
+        rap (str): generated rap
+    """
+    return "".join(
+        [random.choice(get_match_word(w.yomi, tone_list))
+            if w.pos == "名詞" or w.pos == "形容詞" or w.pos == "動詞"
+            else w.surface
+            for w in mecab.parse(s).words]
+    )
+
 # with open('mecab_tone_2gram.pkl', 'wb') as w:
 #     pickle.dump(_create_tone_list(counter), w, pickle.HIGHEST_PROTOCOL)
 
 with open('mecab_tone_2gram.pkl', 'rb') as w:
     tone_list = pickle.load(w)
-
-print([random.choice(get_match_word(w, tone_list)) for w in ['君', 'は', 'まるで', '俺', 'の', '太陽']])
