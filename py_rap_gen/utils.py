@@ -36,6 +36,9 @@ def _convert_tones(kana):
         for t in tone_types:
             if k in tone_types[t]:
                 tones.append(t)
+        if k == 'ー':
+            if len(tones) != 0:
+                tones.append(tones[-1])
     return tones
 
 
@@ -46,7 +49,10 @@ def _create_tone_list(counter):
         tone_list (Hash[String, List[String]]): tone to string dictionary.
     """
     tone_list = {}
-    for k in counter['children']:
+    for i, k in enumerate(counter['children']):
+        words = mecab.parse(k).words
+        if len(words) != 1:
+            continue
         chars = mecab.parse(k).words[0].yomi
         tones = "".join(_convert_tones(chars))
         if tones == "":

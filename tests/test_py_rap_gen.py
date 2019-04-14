@@ -11,9 +11,11 @@ def test_convert_tones():
     eq_(['a', 'u', 'xtu'], utils._convert_tones('ヤブッ'))
     eq_(['a', 'i', 'o', 'u', 'i', 'a'], utils._convert_tones('カリフォルニア'))
     eq_(['o', 'u', 'e', 'u'], utils._convert_tones('チョウセツ'))
-    eq_(['o', 'a', 'e', 'i', 'o', 'u'], utils._convert_tones('ローマテイコク'))
+    eq_(['o', 'o', 'a', 'e', 'i', 'o', 'u'], utils._convert_tones('ローマテイコク'))
     eq_([], utils._convert_tones('、'))
     eq_(['a', 'n', 'a', 'n'], utils._convert_tones('カンタン'))
+    eq_(['a', 'a', 'a'], utils._convert_tones('カラー'))
+    eq_([], utils._convert_tones('ー'))
 
 def test_create_tone_list():
     counter = {
@@ -37,16 +39,15 @@ def test_create_tone_list():
                         
                     }
                 }
-            }
+            },
+            '': {},
+            '空が青い': {}
         }
     }
     ret = utils._create_tone_list(counter)
     expected = {
         "aaa": ['頭'],
-        # "aaaa": ['頭が', '頭は'],
         "uoi": ['動き'],
-        # "uoia": ['動きは'],
-        # "uoiau": ['動き出す']
     }
     eq_(expected, ret)
 
