@@ -67,7 +67,7 @@ def test_get_match_word():
         "uoiau": ['動き出す']
     }
     eq_(['頭'], utils.get_match_word("サカサ", tone_list))
-    eq_(['動き出す'], utils.get_match_word("ウゴキダスカ", tone_list))
+    eq_(['動き出す'], utils.get_match_word("ウゴキマス", tone_list))
 
 
 def test_generate_rap():

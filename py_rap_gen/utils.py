@@ -130,10 +130,11 @@ def get_match_word(yomi, tone_list):
 
     distances = []
     for t in tone_list:
-        l = measure_levenshtein(tones, t)
-        distances.append((l, t))
+        if len(tones) == len(t):
+            l = measure_initial_match_num(tones, t)
+            distances.append((l, t))
 
-    distance = sorted(distances, key=lambda x: x[0])[0]
+    distance = sorted(distances, key=lambda x: x[0], reverse=True)[0]
     return tone_list[distance[1]]
 
 
