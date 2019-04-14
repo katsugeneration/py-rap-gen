@@ -99,6 +99,24 @@ def measure_levenshtein(word1, word2):
     return distances[l_w1][l_w2]
 
 
+def measure_initial_match_num(word1, word2):
+    """Return head match num between word1 and word2
+
+    Aarg:
+        word1 (str): target first word.
+        word2 (str): target second word.
+    Return:
+        match_num (int): head match word numbers.
+    """
+    match_num = 0
+    while match_num < len(word1) and match_num < len(word2):
+        if word1[match_num] == word2[match_num]:
+            match_num += 1
+        else:
+            break
+    return match_num
+
+
 def get_match_word(yomi, tone_list):
     """Return tone match words to word.
 
