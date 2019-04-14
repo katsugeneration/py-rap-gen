@@ -16,6 +16,7 @@ def test_convert_tones():
     eq_(['a', 'n', 'a', 'n'], utils._convert_tones('カンタン'))
     eq_(['a', 'a', 'a'], utils._convert_tones('カラー'))
     eq_([], utils._convert_tones('ー'))
+    eq_(['a', 'n', 'a', 'i', 'a'], utils._convert_tones('ヴァンパイア'))
 
 def test_create_tone_list():
     counter = {
