@@ -7,8 +7,11 @@ import os
 import pandas as pd
 import pathlib
 import pickle
+from py_rap_gen import utils
 
 NEOLOGD_PATH = "mecab-ipadic-neologd"
+DICT_PATH = 'mecab_yomi.pkl'
+TONE_PATH = 'mecab_tone_yomi.pkl'
 
 
 def _build_neologd(path):
@@ -28,25 +31,30 @@ def _preprocess_dict(path):
         "surface", "leftconnection", "rightconnection", "cost",
         "pos", "pos1", "pos2", "pos3", "conjugation1", "conjugation2",
         "base", "yomi", "pronounce"]
-    values = None
+    _dict = None
     for p in pathlib.Path(path + "/build").glob('**/*.csv'):
         print("Processing:", p)
         df = pd.read_csv(p, names=headers, header=None)
-        if values is None:
-            values = df
+        if _dict is None:
+            _dict = df
         else:
-            values = values.append(df, ignore_index=True)
-    values = values[["surface", "yomi"]].to_dict(orient='records')
-    with open('mecab_1gram.pkl', 'wb') as w:
-        pickle.dump(values, w, pickle.HIGHEST_PROTOCOL)
+            _dict = _dict.append(df, ignore_index=True)
+    _dict = _dict[["surface", "yomi"]].to_dict(orient='records')
+    return _dict
 
 
 def main():
+    _dict = None
     if not os.path.exists(NEOLOGD_PATH):
         _build_neologd(NEOLOGD_PATH)
     if os.path.exists(NEOLOGD_PATH):
-        _preprocess_dict(NEOLOGD_PATH)
-
-
-if __name__ == '__main__':
-    main()
+        _dict = _preprocess_dict(NEOLOGD_PATH)
+        with open(DICT_PATH, 'wb') as w:
+            pickle.dump(_dict, w, pickle.HIGHEST_PROTOCOL)
+    if _dict is None and os.path.exists(DICT_PATH):
+        with open(DICT_PATH, 'rb') as f:
+            _dict = pickle.load(f)
+    if _dict is not None:
+        tone_list = utils._create_tone_list(_dict)
+        with open(TONE_PATH, 'wb') as w:
+            pickle.dump(tone_list, w, pickle.HIGHEST_PROTOCOL)

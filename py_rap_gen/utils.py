@@ -7,9 +7,6 @@ from py_rap_gen import mecab
 import numpy as np
 
 
-with open('mecab_1gram.pkl', 'rb') as f:
-    counter = pickle.load(f)
-
 tone_types = {}
 tone_types["a"] = ['ア', 'カ', 'サ', 'タ', 'ナ', 'ハ', 'マ', 'ヤ', 'ラ', 'ワ', 'ガ', 'ザ', 'ダ', 'バ', 'パ', 'ャ', 'ァ']
 tone_types["i"] = ['イ', 'キ', 'シ', 'チ', 'ニ', 'ヒ', 'ミ', 'リ', 'ギ', 'ジ', 'ヂ', 'ビ', 'ピ', 'ィ']
@@ -42,24 +39,23 @@ def _convert_tones(kana):
     return tones
 
 
-def _create_tone_list(counter):
+def _create_tone_list(_dict):
     """Return tone to string dictionary.
 
+    Args:
+        _dict (List[Hash]): word hash list. hash have surface and yomi.
     Return:
         tone_list (Hash[String, List[String]]): tone to string dictionary.
     """
     tone_list = {}
-    for i, k in enumerate(counter['children']):
-        words = mecab.parse(k).words
-        if len(words) != 1:
-            continue
-        chars = mecab.parse(k).words[0].yomi
+    for i, w in enumerate(_dict):
+        chars = w['yomi']
         tones = "".join(_convert_tones(chars))
         if tones == "":
             continue
         if tones not in tone_list:
             tone_list[tones] = []
-        tone_list[tones].append(k)
+        tone_list[tones].append(w['surface'])
     return tone_list
 
 
@@ -149,9 +145,6 @@ def generate_rap(s, tone_list):
             else w.surface
             for w in mecab.parse(s).words]
     )
-
-# with open('mecab_tone_1gram.pkl', 'wb') as w:
-#     pickle.dump(_create_tone_list(counter), w, pickle.HIGHEST_PROTOCOL)
 
 with open('mecab_tone_1gram.pkl', 'rb') as w:
     tone_list = pickle.load(w)

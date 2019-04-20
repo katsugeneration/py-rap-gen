@@ -19,33 +19,25 @@ def test_convert_tones():
     eq_(['a', 'n', 'a', 'i', 'a'], utils._convert_tones('ヴァンパイア'))
 
 def test_create_tone_list():
-    counter = {
-        'children': {
-            '頭': {
-                'children': {
-                    'が': {
-
-                    },
-                    'は': {
-
-                    }
-                }
-            },
-            '動き': {
-                'children': {
-                    'は': {
-
-                    },
-                    '出す': {
-                        
-                    }
-                }
-            },
-            '': {},
-            '空が青い': {}
-        }
-    }
-    ret = utils._create_tone_list(counter)
+    _dict = [
+        {
+            'surface': '頭',
+            'yomi': 'アタマ'
+        },
+        {
+            'surface': '動き',
+            'yomi': 'ウゴキ'
+        },
+        {
+            'surface': '',
+            'yomi': ''
+        },
+        {
+            'surface': '空が青い',
+            'yomi': ''
+        },
+    ]
+    ret = utils._create_tone_list(_dict)
     expected = {
         "aaa": ['頭'],
         "uoi": ['動き'],
