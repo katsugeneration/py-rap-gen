@@ -72,7 +72,7 @@ def test_generate_rap():
         "uoia": ['動きは'],
         "uoiau": ['動き出す']
     }
-    eq_('頭が', utils.generate_rap("逆さが", tone_list))
+    ok_(utils.generate_rap("逆さが", tone_list).startswith('頭'))
 
 
 def test_measure_initial_match_num():

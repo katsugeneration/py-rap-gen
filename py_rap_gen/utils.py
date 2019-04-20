@@ -139,11 +139,20 @@ def generate_rap(s, tone_list):
     Return:
         rap (str): generated rap
     """
+    yomis = []
+    for w in mecab.parse(s).words:
+        if w.pos == "名詞" or w.pos == "形容詞" or w.pos == "動詞":
+            yomis.append([w.surface, w.yomi, True])
+        else:
+            if 0.3 < random.random():
+                yomis[-1][1] += w.yomi
+                yomis[-1][2] = True
+            else:
+                yomis.append([w.surface, w.yomi, False])
     return "".join(
-        [random.choice(get_match_word(w.yomi, tone_list))
-            if w.pos == "名詞" or w.pos == "形容詞" or w.pos == "動詞"
-            else w.surface
-            for w in mecab.parse(s).words]
+        [random.choice(get_match_word(yomi, tone_list))
+         if is_yomi else surface
+         for surface, yomi, is_yomi in yomis]
     )
 
 
