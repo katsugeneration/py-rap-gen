@@ -8,6 +8,7 @@ authors = ["Katsuya SHIMABUKURO <katsu.generation.888@gmail.com>"]
 python = "^3.6"
 mecab-python3 = "^0.996.1"
 numpy = "^1.16"
+pandas = "^0.24.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
