@@ -20,3 +20,4 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry.scripts]
 preprocess = "py_rap_gen.preprocess:main"
+generate = "py_rap_gen.utils:main"

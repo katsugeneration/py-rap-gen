@@ -146,5 +146,10 @@ def generate_rap(s, tone_list):
             for w in mecab.parse(s).words]
     )
 
-with open('mecab_tone_1gram.pkl', 'rb') as w:
-    tone_list = pickle.load(w)
+
+def main():
+    with open('mecab_tone_yomi.pkl', 'rb') as w:
+        tone_list = pickle.load(w)
+    while True:
+        sentence = input()
+        print(generate_rap(sentence, tone_list))
