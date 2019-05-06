@@ -109,6 +109,24 @@ def measure_initial_match_num(word1, word2):
     return match_num
 
 
+def measure_tail_match_num(word1, word2):
+    """Return tail match num between word1 and word2
+
+    Aarg:
+        word1 (str): target first word.
+        word2 (str): target second word.
+    Return:
+        match_num (int): tail match word numbers.
+    """
+    match_num = 0
+    while match_num < len(word1) and match_num < len(word2):
+        if word1[-1-match_num] == word2[-1-match_num]:
+            match_num += 1
+        else:
+            break
+    return match_num
+
+
 def get_match_word(yomi, tone_list):
     """Return tone match words to word.
 
@@ -120,11 +138,14 @@ def get_match_word(yomi, tone_list):
     """
     tones = "".join(_convert_tones(yomi))
 
-    distances = []
-    for t in tone_list:
-        if len(tones) == len(t):
-            l = measure_initial_match_num(tones, t)
-            distances.append((l, t))
+    distances = [
+        (
+            max(measure_tail_match_num(tones, t),
+                measure_initial_match_num(tones, t)),
+            t)
+        for t in tone_list
+        if len(tones) == len(t)
+    ]
 
     distance = sorted(distances, key=lambda x: x[0], reverse=True)[0]
     return tone_list[distance[1]]
