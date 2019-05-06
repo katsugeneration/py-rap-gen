@@ -144,7 +144,7 @@ def generate_rap(s, tone_list):
         if w.pos == "名詞" or w.pos == "形容詞" or w.pos == "動詞":
             yomis.append([w.surface, w.yomi, True])
         else:
-            if 0.3 < random.random():
+            if 0.7 < random.random():
                 yomis[-1][1] += w.yomi
                 yomis[-1][2] = True
             else:
@@ -160,5 +160,6 @@ def main():
     with open('mecab_tone_yomi.pkl', 'rb') as w:
         tone_list = pickle.load(w)
     while True:
+        print('Please Input Sentence:')
         sentence = input()
         print(generate_rap(sentence, tone_list))
