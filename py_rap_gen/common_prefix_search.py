@@ -6,6 +6,57 @@
 NOT_FOUND = -1
 
 
+class TrieBase(object):
+    """Common Prefix Search with Naive Transition Table."""
+    def __init__(self, words):
+        self._index2char = [""]
+        self._char2index = {}
+        self._index2word = {}
+        self._word2index = {}
+        self._table = self.create(words)
+
+    def create(self, words):
+        """Create trie transition table.
+
+        trie transition table is shape (N, C)
+        N is trie tree nose size.
+        C is character vocaburaly size.
+
+        Args:
+            words (List[String]): target yomi foramt words list.
+
+        Return:
+            table (List[List[Int]]): transition table.
+        """
+        table = [[]]
+
+        for w in words:
+            parent = 0
+            for i, c in enumerate(w):
+                if c not in self._index2char:
+                    self._index2char.append(c)
+                    self._char2index[c] = len(self._index2char) - 1
+                char_index = self._char2index[c]
+                node = table[parent]
+
+                if char_index >= len(node):
+                    node.extend([NOT_FOUND] * (char_index - len(node) + 1))
+                child = node[char_index]
+
+                if child == NOT_FOUND:
+                    table.append([])
+                    child = len(table) - 1
+                    node[char_index] = child
+                parent = child
+
+                if (i+1) == len(w):
+                    if w not in self._index2word:
+                        self._index2word[parent] = w
+                        self._word2index[w] = parent
+
+        return table
+
+
 class DoubleArray(object):
     """Common Prefix Search with Double Array."""
     def __init__(self):
@@ -16,11 +67,10 @@ class DoubleArray(object):
         self._index2word = {}
         self._word2index = {}
 
-    def craete(self, words):
+    def create(self, words):
         for w in words:
             parent = 0
             for i, c in enumerate(w):
-                print(parent)
                 if c not in self._index2char:
                     self._index2char.append(c)
                     self._char2index[c] = len(self._index2char) - 1
@@ -57,11 +107,11 @@ class DoubleArray(object):
                         else:
                             self._base.extend([NOT_FOUND] * (char_index - len(self._base) + 1))
                             child = self._base.index(NOT_FOUND, char_index)
-                    print(child, char_index)
+
                     self._base[parent] = child - char_index
                     if child >= len(self._check):
                         self._check.extend([NOT_FOUND] * (child - len(self._check) + 1))
-                    
+
                     if self._check[child] != NOT_FOUND and self._check[child] != parent:
                         # case double array is conflict.
                         raise NotImplementedError()
