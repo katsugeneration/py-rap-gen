@@ -52,6 +52,15 @@ class TestTrieBase:
         result = tb.search('d')
         eq_(result, [])
 
+    def test_search_case_two_words(self):
+        tb = common_prefix_search.TrieBase(['abc', 'abd'])
+        result = tb.search('a')
+        eq_(result, ['abc', 'abd'])
+        result = tb.search('ab')
+        eq_(result, ['abc', 'abd'])
+        result = tb.search('abc')
+        eq_(result, ['abc'])
+
 
 class TestDoubleArray:
     def test_create(self):
