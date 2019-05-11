@@ -20,7 +20,7 @@ class TrieBase(object):
 
         trie transition table is shape (N, C)
         N is trie tree nose size.
-        C is character vocaburaly size.
+        C is character vocabulary size.
 
         Args:
             words (List[String]): target yomi foramt words list.
@@ -67,6 +67,8 @@ class TrieBase(object):
         """
         parent = 0
         for c in word:
+            if c not in self._char2index:
+                return []
             if self._char2index[c] >= len(self._table[parent]):
                 return []
 
