@@ -151,12 +151,38 @@ def get_match_word(yomi, tone_list):
     return tone_list[distance[1]]
 
 
-def generate_rap(s, tone_list):
+def get_match_word_with_searcher(yomi, tone_list, prefix_searcher):
+    """Return tone match words with common prefix searcher.
+
+    Aarg:
+        yomi (str): target word yomi.
+        tone_list (str): tone dictionary.
+        prefix_searcher (TrieBase): Trie prefix searcher class
+    Return:
+        words (List[String]): match word list.
+    """
+    tones = _convert_tones(yomi)
+    N = len(tones)
+    result = []
+    while len(tones) != 0:
+        result = prefix_searcher.search(tones)
+        result = [t for t in result if len(t) == N]
+        if len(result) != 0:
+            break
+        tones = tones[:-1]
+
+    if len(result) == 0:
+        return []
+    return tone_list[random.choice(result)]
+
+
+def generate_rap(s, tone_list, prefix_searcher):
     """Return generated rap.
 
     Aarg:
         s (str): target sentence.
         tone_list (str): tone dictionary.
+        prefix_searcher (TrieBase): Trie Prefix Searcher class
     Return:
         rap (str): generated rap
     """
@@ -171,7 +197,7 @@ def generate_rap(s, tone_list):
             else:
                 yomis.append([w.surface, w.yomi, False])
     return "".join(
-        [random.choice(get_match_word(yomi, tone_list))
+        [random.choice(get_match_word_with_searcher(yomi, tone_list, prefix_searcher))
          if is_yomi else surface
          for surface, yomi, is_yomi in yomis]
     )
@@ -180,7 +206,9 @@ def generate_rap(s, tone_list):
 def main():
     with open('mecab_tone_yomi.pkl', 'rb') as w:
         tone_list = pickle.load(w)
+    with open('prefix_searcher.pkl', 'rb') as w:
+        prefix_searcher = pickle.load(w)
     while True:
         print('Please Input Sentence:')
         sentence = input()
-        print(generate_rap(sentence, tone_list))
+        print(generate_rap(sentence, tone_list, prefix_searcher))

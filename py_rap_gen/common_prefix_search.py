@@ -93,7 +93,6 @@ class TrieBase(object):
         def _search(p):
             nonlocal S
             children = [c for c in self._table[p] if c != NOT_FOUND]
-            print(children)
             S |= set(children)
             for c in children:
                 _search(c)
