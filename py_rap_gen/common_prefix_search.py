@@ -76,17 +76,17 @@ class TrieBase(object):
             if parent == NOT_FOUND:
                 return []
         return [self._index2word[i]
-                for i in self.children(parent) + [parent]
+                for i in self.descendant(parent) + [parent]
                 if i in self._index2word]
 
-    def children(self, parent):
-        """Return children node list.
+    def descendant(self, parent):
+        """Return descendant node list.
 
         Args:
             parent (Int): target node index.
 
         Return:
-            result (List[Int]): children node index list.
+            result (List[Int]): descendant node index list.
         """
         S = set()
 
