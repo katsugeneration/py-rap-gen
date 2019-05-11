@@ -32,7 +32,7 @@ class TrieBase(object):
 
         for w in words:
             parent = 0
-            for i, c in enumerate(w):
+            for c in w:
                 if c not in self._index2char:
                     self._index2char.append(c)
                     self._char2index[c] = len(self._index2char) - 1
@@ -49,10 +49,9 @@ class TrieBase(object):
                     node[char_index] = child
                 parent = child
 
-                if (i+1) == len(w):
-                    if w not in self._index2word:
-                        self._index2word[parent] = w
-                        self._word2index[w] = parent
+            if w not in self._index2word:
+                self._index2word[parent] = w
+                self._word2index[w] = parent
 
         return table
 
