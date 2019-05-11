@@ -10,6 +10,21 @@ class TestTrieBase:
         eq_(da._table[1], [-1, -1, 2])
         eq_(da._table[2], [-1, -1, -1, 3])
 
+    def test_create_contain_common_prefix(self):
+        da = common_prefix_search.TrieBase(['abc', 'adc'])
+        eq_(da._table[0], [-1, 1])
+        eq_(da._table[1], [-1, -1, 2, -1, 4])
+        eq_(da._table[2], [-1, -1, -1, 3])
+        eq_(da._table[4], [-1, -1, -1, 5])
+
+    def test_create_contain_common_postfix(self):
+        da = common_prefix_search.TrieBase(['abc', 'dbc'])
+        eq_(da._table[0], [-1, 1, -1, -1, 4])
+        eq_(da._table[1], [-1, -1, 2])
+        eq_(da._table[2], [-1, -1, -1, 3])
+        eq_(da._table[4], [-1, -1, 5])
+        eq_(da._table[5], [-1, -1, -1, 6])
+
 
 class TestDoubleArray:
     def test_create(self):
