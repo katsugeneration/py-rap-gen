@@ -56,6 +56,44 @@ class TrieBase(object):
 
         return table
 
+    def search(self, word):
+        """Search common prefix words.
+
+        Args:
+            word (String): target prefix.
+
+        Return:
+            result (List[String]): matched words.
+        """
+        parent = 0
+        for c in word:
+            parent = self._table[parent][self._char2index[c]]
+        return [self._index2word[i]
+                for i in self.children(parent) + [parent]
+                if i in self._index2word]
+
+    def children(self, parent):
+        """Return children node list.
+
+        Args:
+            parent (Int): target node index.
+
+        Return:
+            result (List[Int]): children node index list.
+        """
+        S = set()
+
+        def _search(p):
+            nonlocal S
+            children = [c for c in self._table[p] if c != NOT_FOUND]
+            print(children)
+            S |= set(children)
+            for c in children:
+                _search(c)
+
+        _search(parent)
+        return list(S)
+
 
 class DoubleArray(object):
     """Common Prefix Search with Double Array."""
