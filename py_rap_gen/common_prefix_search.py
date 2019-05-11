@@ -67,7 +67,13 @@ class TrieBase(object):
         """
         parent = 0
         for c in word:
+            if self._char2index[c] >= len(self._table[parent]):
+                return []
+
             parent = self._table[parent][self._char2index[c]]
+
+            if parent == NOT_FOUND:
+                return []
         return [self._index2word[i]
                 for i in self.children(parent) + [parent]
                 if i in self._index2word]

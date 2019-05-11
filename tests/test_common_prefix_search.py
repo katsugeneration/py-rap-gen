@@ -34,6 +34,15 @@ class TestTrieBase:
         result = tb.search('abc')
         eq_(result, ['abc'])
 
+    def test_search_case_non_result(self):
+        tb = common_prefix_search.TrieBase(['abc'])
+        result = tb.search('aba')
+        eq_(result, [])
+        result = tb.search('ac')
+        eq_(result, [])
+        result = tb.search('b')
+        eq_(result, [])
+
 
 class TestDoubleArray:
     def test_create(self):
