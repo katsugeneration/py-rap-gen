@@ -73,6 +73,11 @@ class TestDoubleArray:
         eq_(da._base, [0, 0, 0, -1, 2, -1])
         eq_(da._check, [-1, 0, 1, 2, 1, 4])
 
+    def test_create_contain_common_postfix(self):
+        da = common_prefix_search.DoubleArray(['abc', 'dbc'])
+        eq_(da._base, [0, 0, 0, -1, 3, 3, -1])
+        eq_(da._check, [-1, 0, 1, 2, 0, 4, 5])
+
     def test_search(self):
         da = common_prefix_search.DoubleArray(['abc'])
         result = da.search('a')
