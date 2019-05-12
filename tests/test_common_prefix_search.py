@@ -72,3 +72,12 @@ class TestDoubleArray:
         da = common_prefix_search.DoubleArray(['abc', 'adc'])
         eq_(da._base, [0, 0, 0, -1, 2, -1])
         eq_(da._check, [-1, 0, 1, 2, 1, 4])
+
+    def test_search(self):
+        da = common_prefix_search.DoubleArray(['abc'])
+        result = da.search('a')
+        eq_(result, ['abc'])
+        result = da.search('ab')
+        eq_(result, ['abc'])
+        result = da.search('abc')
+        eq_(result, ['abc'])
