@@ -86,3 +86,30 @@ class TestDoubleArray:
         eq_(result, ['abc'])
         result = da.search('abc')
         eq_(result, ['abc'])
+
+    def test_search_case_non_result(self):
+        da = common_prefix_search.DoubleArray(['abc'])
+        result = da.search('aba')
+        eq_(result, [])
+        result = da.search('ac')
+        eq_(result, [])
+        result = da.search('b')
+        eq_(result, [])
+
+    def test_search_case_non_vocabulary(self):
+        da = common_prefix_search.DoubleArray(['abc'])
+        result = da.search('abd')
+        eq_(result, [])
+        result = da.search('ad')
+        eq_(result, [])
+        result = da.search('d')
+        eq_(result, [])
+
+    def test_search_case_two_words(self):
+        da = common_prefix_search.DoubleArray(['abc', 'abd'])
+        result = da.search('a')
+        eq_(result, ['abc', 'abd'])
+        result = da.search('ab')
+        eq_(result, ['abc', 'abd'])
+        result = da.search('abc')
+        eq_(result, ['abc'])
