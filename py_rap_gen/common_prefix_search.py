@@ -15,9 +15,9 @@ class TrieBase(object):
         self._char2index = {}
         self._index2word = {}
         self._word2index = {}
-        self._table = self.create(words)
+        self._table = self.build(words)
 
-    def create(self, words):
+    def build(self, words):
         """Create trie transition table.
 
         trie transition table is shape (N, C)
@@ -110,9 +110,9 @@ class DoubleArray(TrieBase):
         self._char2index = {}
         self._index2word = {}
         self._word2index = {}
-        self._base, self._check = self.create(words)
+        self._base, self._check = self.build(words)
 
-    def create(self, words):
+    def build(self, words):
         """Create double array.
 
         double array consists two arrays. base and check
@@ -127,7 +127,7 @@ class DoubleArray(TrieBase):
             base (List[Int]): transition node array.
             check (List[Int]): parent node check array.
         """
-        table = super().create(words)
+        table = super().build(words)
         index2word = copy.deepcopy(self._index2word)
         self._index2word = {}
         self._word2index = {}
