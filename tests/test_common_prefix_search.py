@@ -64,13 +64,11 @@ class TestTrieBase:
 
 class TestDoubleArray:
     def test_create(self):
-        da = common_prefix_search.DoubleArray()
-        da.create(['abc'])
+        da = common_prefix_search.DoubleArray(['abc'])
         eq_(da._base, [0, 0, 0, -1])
         eq_(da._check, [-1, 0, 1, 2])
 
     def test_create_contain_common_prefix(self):
-        da = common_prefix_search.DoubleArray()
-        da.create(['abc', 'adc'])
-        eq_(da._base, [0, 0, 0, -1, 0])
-        eq_(da._check, [-1, 0, 1, 2, 1])
+        da = common_prefix_search.DoubleArray(['abc', 'adc'])
+        eq_(da._base, [0, 0, 0, -1, 2, -1])
+        eq_(da._check, [-1, 0, 1, 2, 1, 4])
