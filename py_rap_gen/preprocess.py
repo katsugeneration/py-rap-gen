@@ -60,6 +60,6 @@ def main():
         tone_list = utils._create_tone_list(_dict)
         with open(TONE_PATH, 'wb') as w:
             pickle.dump(tone_list, w, pickle.HIGHEST_PROTOCOL)
-        prefix_searcher = common_prefix_search.TrieBase(tone_list.keys())
+        prefix_searcher = common_prefix_search.DoubleArray(tone_list.keys())
         with open(PREFIX_SEARCHER_PATH, 'wb') as w:
             pickle.dump(prefix_searcher, w, pickle.HIGHEST_PROTOCOL)
