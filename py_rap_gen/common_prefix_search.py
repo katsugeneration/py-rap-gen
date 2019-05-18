@@ -200,10 +200,10 @@ class DoubleArray(TrieBase):
 
         Args:
             word (String): target prefix.
-            max_len (Int): maximum word length.
+            max_len (Int): maximum word length. minus value is ignored.
 
         Return:
-            result (List[String]): matched words.
+            result (List[String]): matched words fewer length than max_len.
         """
         parent = 0
         length = 0
@@ -230,10 +230,10 @@ class DoubleArray(TrieBase):
         Args:
             parent (Int): target node index.
             start_len (Int): start length.
-            max_len (Int): maximum word length.
+            max_len (Int): maximum word length. minus value is ignored.
 
         Return:
-            result (List[Int]): descendant node index list.
+            result (List[Int]): descendant node index list fewer length than max_len.
         """
         S = set()
 
