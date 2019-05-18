@@ -205,7 +205,7 @@ def generate_rap(s, tone_list, prefix_searcher):
 def main():
     with open('mecab_tone_yomi.pkl', 'rb') as w:
         tone_list = pickle.load(w)
-    with open('prefix_searcher_da2.pkl', 'rb') as w:
+    with open('prefix_searcher_da.pkl', 'rb') as w:
         prefix_searcher = pickle.load(w)
     while True:
         print('Please Input Sentence:')

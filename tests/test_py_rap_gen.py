@@ -72,7 +72,10 @@ def test_generate_rap():
         "uoia": ['動きは'],
         "uoiau": ['動き出す']
     }
-    ok_(utils.generate_rap("逆さが", tone_list).startswith('頭'))
+    import pickle
+    with open('prefix_searcher_da.pkl', 'rb') as w:
+        prefix_searcher = pickle.load(w)
+    ok_(utils.generate_rap("逆さが", tone_list, prefix_searcher).startswith('頭'))
 
 
 def test_measure_initial_match_num():
