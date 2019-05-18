@@ -128,11 +128,13 @@ class DoubleArray(TrieBase):
             check (List[Int]): parent node check array.
         """
         table = super().build(words)
+        print("table size:", len(table))
         index2word = copy.deepcopy(self._index2word)
         self._index2word = {}
         self._word2index = {}
         base = [0]
         check = [NOT_FOUND]
+        not_found_indexes = []
 
         def _search(p, n):
             """Deep First Searh for creating double array.
@@ -141,6 +143,7 @@ class DoubleArray(TrieBase):
                 p (Int): transition table parent node index.
                 n (Int): double array parent node index.
             """
+            print("target:", p)
             if p in index2word:
                 # Update word node index to double array index
                 w = index2word[p]
@@ -165,23 +168,28 @@ class DoubleArray(TrieBase):
             start_index = min_char_index
 
             is_end = False
+            start_index = 0
             while not is_end:
-                try:
-                    min_index = check.index(NOT_FOUND, start_index)
-                except ValueError:
+                if start_index < len(not_found_indexes):
+                    min_index = not_found_indexes[start_index]
+                else:
                     check.append(NOT_FOUND)
                     min_index = len(check) - 1
+                    not_found_indexes.append(min_index)
                 base[n] = min_index - min_char_index
 
                 if (base[n] + max_char_index) >= len(check):
+                    not_found_indexes.extend(range(len(check), base[n] + max_char_index + 1))
                     check.extend([NOT_FOUND] * (base[n] + max_char_index - len(check) + 1))
 
                 is_end = all([check[base[n] + char_index] == NOT_FOUND for char_index, _ in children])
-                start_index = min_index + 1
+                start_index += 1
 
             # Set searched information
             for char_index, _ in children:
                 check[base[n] + char_index] = n
+                del_index = not_found_indexes.index(base[n] + char_index)
+                del not_found_indexes[del_index]
             for char_index, c in children:
                 _search(c, base[n] + char_index)
 
