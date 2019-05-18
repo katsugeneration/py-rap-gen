@@ -113,3 +113,19 @@ class TestDoubleArray:
         eq_(result, ['abc', 'abd'])
         result = da.search('abc')
         eq_(result, ['abc'])
+
+    def test_search_max_len(self):
+        da = common_prefix_search.DoubleArray(['ad', 'abc'])
+        result = da.search('a', max_len=1)
+        eq_(result, [])
+        result = da.search('a', max_len=2)
+        eq_(result, ['ad'])
+        result = da.search('a', max_len=3)
+        eq_(result, ['ad', 'abc'])
+
+    def test_search_max_len_over_word_length(self):
+        da = common_prefix_search.DoubleArray(['ad', 'abc'])
+        result = da.search('ad', max_len=1)
+        eq_(result, [])
+        result = da.search('ad', max_len=2)
+        eq_(result, ['ad'])

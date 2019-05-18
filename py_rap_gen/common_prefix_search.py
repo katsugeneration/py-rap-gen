@@ -195,17 +195,21 @@ class DoubleArray(TrieBase):
         _search(0, 0)
         return base, check
 
-    def search(self, word):
+    def search(self, word, max_len=-1):
         """Search common prefix words.
 
         Args:
             word (String): target prefix.
+            max_len (Int): maximum word length.
 
         Return:
             result (List[String]): matched words.
         """
         parent = 0
+        length = 0
         for c in word:
+            if max_len >= 0 and length == max_len:
+                return []
             if c not in self._char2index:
                 return []
 
@@ -214,24 +218,30 @@ class DoubleArray(TrieBase):
                 return []
 
             parent = child
+            length += 1
 
         return [self._index2word[i]
-                for i in self.descendant(parent) + [parent]
+                for i in self.descendant(parent, length, max_len) + [parent]
                 if i in self._index2word]
 
-    def descendant(self, parent):
+    def descendant(self, parent, start_len=0, max_len=-1):
         """Return descendant node list.
 
         Args:
             parent (Int): target node index.
+            start_len (Int): start length.
+            max_len (Int): maximum word length.
 
         Return:
             result (List[Int]): descendant node index list.
         """
         S = set()
 
-        def _search(p):
+        def _search(p, length):
             nonlocal S
+
+            if max_len >= 0 and length == max_len:
+                return
 
             if self._base[p] == NOT_FOUND:
                 return
@@ -243,7 +253,7 @@ class DoubleArray(TrieBase):
 
             S |= set(children)
             for c in children:
-                _search(c)
+                _search(c, length+1)
 
-        _search(parent)
+        _search(parent, start_len)
         return list(S)

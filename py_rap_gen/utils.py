@@ -165,8 +165,7 @@ def get_match_word_with_searcher(yomi, tone_list, prefix_searcher):
     N = len(tones)
     result = []
     while len(tones) != 0:
-        result = prefix_searcher.search(tones)
-        result = [t for t in result if len(t) == N]
+        result = prefix_searcher.search(tones, max_len=N)
         if len(result) != 0:
             break
         tones = tones[:-1]
@@ -206,7 +205,7 @@ def generate_rap(s, tone_list, prefix_searcher):
 def main():
     with open('mecab_tone_yomi.pkl', 'rb') as w:
         tone_list = pickle.load(w)
-    with open('prefix_searcher.pkl', 'rb') as w:
+    with open('prefix_searcher_da2.pkl', 'rb') as w:
         prefix_searcher = pickle.load(w)
     while True:
         print('Please Input Sentence:')
