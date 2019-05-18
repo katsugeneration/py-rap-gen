@@ -143,7 +143,6 @@ class DoubleArray(TrieBase):
                 p (Int): transition table parent node index.
                 n (Int): double array parent node index.
             """
-            print("target:", p)
             if p in index2word:
                 # Update word node index to double array index
                 w = index2word[p]
