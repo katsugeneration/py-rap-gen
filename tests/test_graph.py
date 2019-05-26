@@ -24,4 +24,4 @@ def test_construct_graph():
     eq_(set([graph.Node(0, 'か'), graph.Node(0, 'あ'), graph.Node(0, 'さ')]), set(g.nodes[1]))
     eq_(set([graph.Node(0, 'あお'), graph.Node(0, 'かお'), graph.Node(0, 'さと'), graph.Node(1, 'と')]),
         set(g.nodes[2]))
-    eq_([graph.EOS], g.nodes[5])
+    eq_([graph.EOS], g.nodes[6])

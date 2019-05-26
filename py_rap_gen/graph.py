@@ -50,14 +50,13 @@ class Graph(object):
         """
         g = Graph()
 
-        for _ in range(len(tone) + 1):
+        for _ in range(len(tone) + 2):
             g.nodes.append([])
         g.nodes[0] = [BOS]
-        g.nodes[len(tone)] = [EOS]
+        g.nodes[len(tone) + 1] = [EOS]
 
         for i in range(len(tone)):
-            for j in range(i, len(tone)):
-                for s in prefix_searcher.search(tone[i:j], max_len=(j-i)):
-                    g.nodes[j].extend([Node(i, w) for w in tone_list[s]])
+            for s in prefix_searcher.prefix_search(tone[i:]):
+                g.nodes[i + len(s)].extend([Node(i, w) for w in tone_list[s]])
 
         return g
