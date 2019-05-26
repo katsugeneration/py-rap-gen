@@ -129,3 +129,21 @@ class TestDoubleArray:
         eq_(result, [])
         result = da.search('ad', max_len=2)
         eq_(result, ['ad'])
+
+    def test_prefix_search(self):
+        da = common_prefix_search.DoubleArray(['a', 'ab', 'abc'])
+        result = da.prefix_search('a')
+        eq_(result, ['a'])
+        result = da.prefix_search('ab')
+        eq_(result, ['a', 'ab'])
+        result = da.prefix_search('abc')
+        eq_(result, ['a', 'ab', 'abc'])
+
+    def test_prefix_search_case_non_vocabulary(self):
+        da = common_prefix_search.DoubleArray(['a', 'ab', 'abc'])
+        result = da.prefix_search('b')
+        eq_(result, [])
+        result = da.prefix_search('ad')
+        eq_(result, ['a'])
+        result = da.prefix_search('aba')
+        eq_(result, ['a', 'ab'])

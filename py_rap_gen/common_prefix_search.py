@@ -128,7 +128,6 @@ class DoubleArray(TrieBase):
             check (List[Int]): parent node check array.
         """
         table = super().build(words)
-        print("table size:", len(table))
         index2word = copy.deepcopy(self._index2word)
         self._index2word = {}
         self._word2index = {}
@@ -194,6 +193,31 @@ class DoubleArray(TrieBase):
 
         _search(0, 0)
         return base, check
+
+    def prefix_search(self, word):
+        """Search word prefix match words.
+
+        Args:
+            word (String): target word.
+
+        Return:
+            result (List[String]): words matched word prefix.
+        """
+        parent = 0
+        result = []
+
+        for c in word:
+            if c not in self._char2index:
+                break
+
+            child = self._base[parent] + self._char2index[c]
+            if self._check[child] != parent:
+                break
+
+            parent = child
+            result.append(self._index2word[parent])
+
+        return result
 
     def search(self, word, max_len=-1):
         """Search common prefix words.
