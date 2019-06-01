@@ -206,12 +206,12 @@ class StructuredLearner(object):
             if self._w[self._feature2index[feature]] < 0:
                 self._w[self._feature2index[feature]] = 0
 
-    def train(self, string, gold):
+    def train(self, strings, golds):
         """Training learnier.
 
         Args:
-            string (String): observable values.
-            gold (List[List[String]]): correct converted suqences.
+            strings (List[String]): observable values.
+            golds (List[List[String]]): correct converted suqences.
         """
         pass
 
@@ -221,37 +221,36 @@ class StructuredPerceptron(StructuredLearner):
         super().__init__()
         self._epoch = 1000
 
-    def train(self, string, gold, prefix_searcher, string_list):
+    def train(self, strings, golds, prefix_searcher, string_list):
         """Construct convert graph.
 
         Args:
-            string (String): target string.
-            gold (List[List[String]]): correct senteneces list.
+            strings (List[String]): target string list.
+            golds (List[List[String]]): correct senteneces lists.
             prefix_searcher (TrieBase): trie data
             string_list (Hash[String, List[String]]): string to string dictionary.
         """
-        g = Graph.construct_graph(prefix_searcher, string_list, string)
-        g.learner = self
-
         for _ in range(self._epoch):
-            path = g.search_shortest_path()
-            path = path[:-1]
-            if [n.word for n in path] not in gold:
-                for i in range(len(path)):
-                    self.update_feature(self.get_node_feature(path[i]), False)
-                    if i == 0:
-                        self.update_feature(self.get_edge_feature(g.BOS, path[i]), False)
-                    elif i == len(path) - 1:
-                        self.update_feature(self.get_edge_feature(path[i], g.EOS), False)
-                    else:
-                        self.update_feature(self.get_edge_feature(path[i-1], path[i]), False)
-
-                for gol in gold:
-                    for i in range(len(gol)):
-                        self.update_feature(self.get_node_feature(Node(-1, gol[i])), True)
+            for string, gold in zip(strings, golds):
+                g = Graph.construct_graph(prefix_searcher, string_list, string)
+                g.learner = self
+                path = g.search_shortest_path()
+                path = path[:-1]
+                if [n.word for n in path] != gold:
+                    for i in range(len(path)):
+                        self.update_feature(self.get_node_feature(path[i]), False)
                         if i == 0:
-                            self.update_feature(self.get_edge_feature(g.BOS, Node(-1, gol[i])), True)
-                        elif i == len(gol) - 1:
-                            self.update_feature(self.get_edge_feature(Node(-1, gol[i]), g.EOS), True)
+                            self.update_feature(self.get_edge_feature(g.BOS, path[i]), False)
+                        elif i == len(path) - 1:
+                            self.update_feature(self.get_edge_feature(path[i], g.EOS), False)
                         else:
-                            self.update_feature(self.get_edge_feature(Node(-1, gol[i-1]), Node(-1, gol[i])), True)
+                            self.update_feature(self.get_edge_feature(path[i-1], path[i]), False)
+
+                    for i in range(len(gold)):
+                        self.update_feature(self.get_node_feature(Node(-1, gold[i])), True)
+                        if i == 0:
+                            self.update_feature(self.get_edge_feature(g.BOS, Node(-1, gold[i])), True)
+                        elif i == len(gold) - 1:
+                            self.update_feature(self.get_edge_feature(Node(-1, gold[i]), g.EOS), True)
+                        else:
+                            self.update_feature(self.get_edge_feature(Node(-1, gold[i-1]), Node(-1, gold[i])), True)
