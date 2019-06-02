@@ -20,6 +20,8 @@ with open('articles/AA/wiki_00') as f:
         line = re.sub(kakko, "", line).strip()
         line = re.sub(space, "", line).strip()
         line = line.strip().split('。')
+        if all(l == '' for l in line):
+            continue
         for l in line:
             w.write(l + '\n')
 w.close()
