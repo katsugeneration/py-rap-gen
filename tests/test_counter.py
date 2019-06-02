@@ -4,6 +4,6 @@ from py_rap_gen import counter
 
 
 def test_lossy_counting():
-    counter = counter.LossyCounter(epsilon=0.5)
-    counter.count(['あ', 'い', 'あ', 'あ'])
-    eq_({'あ': 3}, counter._items)
+    lc = counter.LossyCounter(epsilon=0.5)
+    lc.count(['あ', 'い', 'あ', 'あ'])
+    eq_({'あ': 3}, lc._items)
