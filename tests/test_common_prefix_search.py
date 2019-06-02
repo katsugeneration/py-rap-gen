@@ -147,3 +147,8 @@ class TestDoubleArray:
         eq_(result, ['a'])
         result = da.prefix_search('aba')
         eq_(result, ['a', 'ab'])
+
+    def test_prefix_search_case_non_word_vocabulary(self):
+        da = common_prefix_search.DoubleArray(['a', 'abc'])
+        result = da.prefix_search('abcd')
+        eq_(result, ['a', 'abc'])

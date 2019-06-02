@@ -215,7 +215,8 @@ class DoubleArray(TrieBase):
                 break
 
             parent = child
-            result.append(self._index2word[parent])
+            if parent in self._index2word:
+                result.append(self._index2word[parent])
 
         return result
 
