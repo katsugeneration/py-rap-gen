@@ -20,10 +20,11 @@ with open('articles/AA/wiki_00') as f:
         line = re.sub(kakko, "", line).strip()
         line = re.sub(space, "", line).strip()
         line = line.strip().split('。')
-        if all(l == '' for l in line):
-            continue
+        line = filter(lambda l: l != '', line)
         for l in line:
-            w.write(l + '\n')
+            for p in l.strip().split('、'):
+                if p.strip() != '':
+                    w.write(p + '\n')
 w.close()
 EOS
 cat articles.txt | mecab -F"%m %f[8]\t" -U"%m <UNKNOWN>\t" -E"\n" -b 100000 > data
