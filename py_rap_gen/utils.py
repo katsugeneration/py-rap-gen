@@ -40,26 +40,17 @@ class LossyCounter(object):
         self._symbol_num = 0
         self._buckets_num = 0
 
-        for s in data:
-            self._count_symbols(s)
+        for symbol in data:
+            self._symbol_num += 1
 
-    def _count_symbols(self, s):
-        """Add count element.
+            if symbol in self._items:
+                self._items[symbol] += 1
+            else:
+                self._items[symbol] = self._buckets_num + 1
 
-        Args:
-            s (X): target element.
-        """
-        self._symbol_num += 1
-        symbol = s
-
-        if symbol in self._items:
-            self._items[symbol] += 1
-        else:
-            self._items[symbol] = self._buckets_num + 1
-
-        if self._symbol_num % int(1 / self.epsilon) == 0:
-            self._buckets_num += 1
-            self._items = self._remove_items(self._items, self._buckets_num)
+            if self._symbol_num % int(1 / self.epsilon) == 0:
+                self._buckets_num += 1
+                self._items = self._remove_items(self._items, self._buckets_num)
 
     def _remove_items(self, items, threshold):
         """Remove elements lower count than threshold.
@@ -93,26 +84,6 @@ def _convert_tones(kana):
             if len(tones) != 0:
                 tones.append(tones[-1])
     return tones
-
-
-def _create_tone_list(_dict):
-    """Return tone to string dictionary.
-
-    Args:
-        _dict (List[Hash]): word hash list. hash have surface and yomi.
-    Return:
-        tone_list (Hash[String, List[String]]): tone to string dictionary.
-    """
-    tone_list = {}
-    for i, w in enumerate(_dict):
-        chars = w['yomi']
-        tones = "".join(_convert_tones(chars))
-        if tones == "":
-            continue
-        if tones not in tone_list:
-            tone_list[tones] = []
-        tone_list[tones].append(w['surface'])
-    return tone_list
 
 
 def measure_levenshtein(word1, word2):
@@ -261,7 +232,7 @@ def generate_rap(s, tone_list, prefix_searcher):
 def main():
     with open('mecab_tone_yomi.pkl', 'rb') as w:
         tone_list = pickle.load(w)
-    with open('prefix_searcher_da.pkl', 'rb') as w:
+    with open('prefix_searcher.pkl', 'rb') as w:
         prefix_searcher = pickle.load(w)
     while True:
         print('Please Input Sentence:')

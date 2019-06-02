@@ -18,32 +18,6 @@ def test_convert_tones():
     eq_([], utils._convert_tones('ー'))
     eq_(['a', 'n', 'a', 'i', 'a'], utils._convert_tones('ヴァンパイア'))
 
-def test_create_tone_list():
-    _dict = [
-        {
-            'surface': '頭',
-            'yomi': 'アタマ'
-        },
-        {
-            'surface': '動き',
-            'yomi': 'ウゴキ'
-        },
-        {
-            'surface': '',
-            'yomi': ''
-        },
-        {
-            'surface': '空が青い',
-            'yomi': ''
-        },
-    ]
-    ret = utils._create_tone_list(_dict)
-    expected = {
-        "aaa": ['頭'],
-        "uoi": ['動き'],
-    }
-    eq_(expected, ret)
-
 
 def test_measure_levenshtein():
     eq_(0, utils.measure_levenshtein('aaa', 'aaa'))

@@ -9,11 +9,11 @@ import pathlib
 import pickle
 from py_rap_gen import utils
 from py_rap_gen import common_prefix_search
+from py_rap_gen import graph
 
-NEOLOGD_PATH = "mecab-ipadic-neologd"
-DICT_PATH = 'mecab_yomi.pkl'
 TONE_PATH = 'mecab_tone_yomi.pkl'
 PREFIX_SEARCHER_PATH = 'prefix_searcher.pkl'
+LEARNER_PATH = 'learner.pkl'
 
 
 def _build_neologd(path):
@@ -45,21 +45,88 @@ def _preprocess_dict(path):
     return _dict
 
 
+def _create_tone_list():
+    """Return tone to string dictionary.
+
+    Return:
+        tone_list (Hash[String, List[String]]): tone to string dictionary.
+    """
+
+    def train_data():
+        with open("data", 'r') as f:
+            for line in f:
+                line = line.strip()
+                words = line.split('\t')
+                words = filter(lambda w: w.strip() != '', words)
+                yield from words
+
+    counter = utils.LossyCounter(epsilon=1e-6)
+    counter.count(train_data())
+    print(len(counter._items))
+
+    tone_list = {}
+    for w in counter._items:
+        chars = w.split()[1]
+        tones = "".join(utils._convert_tones(chars))
+        if tones == "":
+            continue
+        if tones not in tone_list:
+            tone_list[tones] = []
+        tone_list[tones].append(w.split()[0])
+    return tone_list
+
+
+def _train_graph(prefix_searcher, tone_list):
+    """Training Structured learner.
+
+    Return:
+        learner (StructuredLearner): Pretrained learner object.
+    """
+    class iteratorWrapper():
+        def __init__(self, func):
+            self._func = func
+
+        def __iter__(self):
+            return self._func()
+
+    def train_data():
+        with open("data", 'r') as f:
+            for line in f:
+                line = line.strip()
+                words = list(filter(lambda w: w.strip() != '', line.split('\t')))
+                words = list(filter(lambda w: all(any(c in t for t in utils.tone_types.values()) for c in w.split()[1]), words))
+                if len(words) == 0:
+                    continue
+                
+                tone = []
+                ws = []
+                for w in words:
+                    tone.extend(utils._convert_tones(w.split()[1]))
+                    ws.append(w.split()[0])
+                    if len(tone) >= 10:
+                        yield tone, ws
+                        tone = []
+                        ws = []
+                if len(tone) != 0:
+                    yield tone, ws
+
+    learner = graph.StructuredPerceptron()
+    learner.N = 1e7
+    learner.epochs = 10
+    learner.train(iteratorWrapper(train_data), prefix_searcher, tone_list)
+    return learner
+
+
 def main():
-    _dict = None
-    if not os.path.exists(NEOLOGD_PATH):
-        _build_neologd(NEOLOGD_PATH)
-    if os.path.exists(NEOLOGD_PATH):
-        _dict = _preprocess_dict(NEOLOGD_PATH)
-        with open(DICT_PATH, 'wb') as w:
-            pickle.dump(_dict, w, pickle.HIGHEST_PROTOCOL)
-    if _dict is None and os.path.exists(DICT_PATH):
-        with open(DICT_PATH, 'rb') as f:
-            _dict = pickle.load(f)
-    if _dict is not None:
-        tone_list = utils._create_tone_list(_dict)
-        with open(TONE_PATH, 'wb') as w:
-            pickle.dump(tone_list, w, pickle.HIGHEST_PROTOCOL)
-        prefix_searcher = common_prefix_search.DoubleArray(tone_list.keys())
-        with open(PREFIX_SEARCHER_PATH, 'wb') as w:
-            pickle.dump(prefix_searcher, w, pickle.HIGHEST_PROTOCOL)
+    ret = subprocess.call("./download.sh", shell=True)
+    if ret != 0:
+        return False
+    tone_list = _create_tone_list()
+    with open(TONE_PATH, 'wb') as w:
+        pickle.dump(tone_list, w, pickle.HIGHEST_PROTOCOL)
+    prefix_searcher = common_prefix_search.DoubleArray(tone_list.keys())
+    with open(PREFIX_SEARCHER_PATH, 'wb') as w:
+        pickle.dump(prefix_searcher, w, pickle.HIGHEST_PROTOCOL)
+    learner = _train_graph(prefix_searcher, tone_list)
+    with open(LEARNER_PATH, 'wb') as w:
+        pickle.dump(learner, w, pickle.HIGHEST_PROTOCOL)
