@@ -4,6 +4,7 @@
 import random
 import pickle
 from py_rap_gen import mecab
+from py_rap_gen import graph
 import numpy as np
 
 
@@ -16,53 +17,6 @@ tone_types["o"] = ['オ', 'コ', 'ソ', 'ト', 'ノ', 'ホ', 'モ', 'ヨ', 'ロ'
 tone_types["xtu"] = ['ッ']
 tone_types["n"] = ['ン']
 mini = ['ァ', 'ィ', 'ゥ', 'ェ', 'ォ', 'ャ', 'ュ', 'ョ']
-
-
-class LossyCounter(object):
-    """Count using Lossy Counting algorithme."""
-    def __init__(self, epsilon=1e-5):
-        """Initialize counter object.
-        Args:
-            epsilon: Lossy Counting algorithme quality parameter
-        """
-        self._symbol_num = 0
-        self._buckets_num = 0
-        self.epsilon = epsilon
-        self._items = {}
-        self.vocab = []
-
-    def count(self, data):
-        """Count data element nums.
-
-        Args:
-            data (List[X]): data object list.
-        """
-        self._symbol_num = 0
-        self._buckets_num = 0
-
-        for symbol in data:
-            self._symbol_num += 1
-
-            if symbol in self._items:
-                self._items[symbol] += 1
-            else:
-                self._items[symbol] = self._buckets_num + 1
-
-            if self._symbol_num % int(1 / self.epsilon) == 0:
-                self._buckets_num += 1
-                self._items = self._remove_items(self._items, self._buckets_num)
-
-    def _remove_items(self, items, threshold):
-        """Remove elements lower count than threshold.
-
-        Args:
-            items (Hash[X, Int]): data object count list.
-            threshold (Int): minimum count.
-        Return:
-            ret (Hash[X]): updated data object count list
-        """
-        ret = dict(filter(lambda x: x[1] >= threshold, items.items()))
-        return ret
 
 
 def _convert_tones(kana):
@@ -229,6 +183,31 @@ def generate_rap(s, tone_list, prefix_searcher):
     )
 
 
+def generate_rapv2(s, tone_list, prefix_searcher):
+    """Return generated rap.
+
+    Aarg:
+        s (str): target sentence.
+        tone_list (str): tone dictionary.
+        prefix_searcher (TrieBase): Trie Prefix Searcher class
+    Return:
+        rap (str): generated rap
+    """
+    import cProfile
+    import pstats
+    pr = cProfile.Profile()
+    pr.enable()
+    tones = "".join(_convert_tones("".join(w.yomi for w in mecab.parse(s).words)))
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, tones)
+    g.learner = graph.StructuredLearner()
+    path = g.search_shortest_path()
+    path = path[:-1]
+    pr.disable()
+    ps = pstats.Stats(pr).sort_stats(*["time", "calls"])
+    ps.print_stats()
+    return "".join(p.word for p in path)
+
+
 def main():
     with open('mecab_tone_yomi.pkl', 'rb') as w:
         tone_list = pickle.load(w)
@@ -237,4 +216,4 @@ def main():
     while True:
         print('Please Input Sentence:')
         sentence = input()
-        print(generate_rap(sentence, tone_list, prefix_searcher))
+        print(generate_rapv2(sentence, tone_list, prefix_searcher))

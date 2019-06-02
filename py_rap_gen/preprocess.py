@@ -3,11 +3,11 @@
 """Yomi data preprocessing module.
 """
 import subprocess
-import os
 import pandas as pd
 import pathlib
 import pickle
 from py_rap_gen import utils
+from py_rap_gen import counter
 from py_rap_gen import common_prefix_search
 from py_rap_gen import graph
 
@@ -60,12 +60,12 @@ def _create_tone_list():
                 words = filter(lambda w: w.strip() != '', words)
                 yield from words
 
-    counter = utils.LossyCounter(epsilon=1e-5)
-    counter.count(train_data())
-    print(len(counter._items))
+    lcounter = counter.LossyCounter(epsilon=1e-5)
+    lcounter.count(train_data())
+    print(len(lcounter._items))
 
     tone_list = {}
-    for w in counter._items:
+    for w in lcounter._items:
         chars = w.split()[1]
         tones = "".join(utils._convert_tones(chars))
         if tones == "":
