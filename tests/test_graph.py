@@ -35,7 +35,7 @@ def test_search_shortest_path():
 
 def test_structured_perceptron():
     learner = graph.StructuredPerceptron()
-    learner.train(['aoioa'], [['あお', 'し', 'もさ']], prefix_searcher, tone_list)
+    learner.train([('aoioa', ['あお', 'し', 'もさ'])], prefix_searcher, tone_list)
     g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aoioa')
     g.learner = learner
     path = g.search_shortest_path()
@@ -45,7 +45,7 @@ def test_structured_perceptron():
 
 def test_structured_perceptron_multiple_sentence():
     learner = graph.StructuredPerceptron()
-    learner.train(['aoioa', 'aooa'], [['あお', 'し', 'もさ'], ['あ', 'と', 'と', 'さ']], prefix_searcher, tone_list)
+    learner.train([('aoioa',['あお', 'し', 'もさ']), ('aooa', ['あ', 'と', 'と', 'さ'])], prefix_searcher, tone_list)
     g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aoioa')
     g.learner = learner
     path = g.search_shortest_path()

@@ -210,8 +210,7 @@ class StructuredLearner(object):
         """Training learnier.
 
         Args:
-            strings (List[String]): observable values.
-            golds (List[List[String]]): correct converted suqences.
+            train_data (List[Tuple[String, List[String]]]): trainning data construct target string and correct sentenece pairs.
         """
         pass
 
@@ -221,17 +220,16 @@ class StructuredPerceptron(StructuredLearner):
         super().__init__()
         self._epoch = 1000
 
-    def train(self, strings, golds, prefix_searcher, string_list):
+    def train(self, train_data, prefix_searcher, string_list):
         """Construct convert graph.
 
         Args:
-            strings (List[String]): target string list.
-            golds (List[List[String]]): correct senteneces lists.
+            train_data (List[Tuple[String, List[String]]]): trainning data construct target string and correct sentenece pairs.
             prefix_searcher (TrieBase): trie data
             string_list (Hash[String, List[String]]): string to string dictionary.
         """
         for _ in range(self._epoch):
-            for string, gold in zip(strings, golds):
+            for string, gold in train_data:
                 g = Graph.construct_graph(prefix_searcher, string_list, string)
                 g.learner = self
                 path = g.search_shortest_path()
