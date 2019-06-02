@@ -1,6 +1,6 @@
 from py_rap_gen import __version__
 from nose.tools import ok_, eq_
-from py_rap_gen import utils
+from py_rap_gen import generator
 
 
 def test_version():
@@ -8,10 +8,10 @@ def test_version():
 
 
 def test_measure_levenshtein():
-    eq_(0, utils.measure_levenshtein('aaa', 'aaa'))
-    eq_(1, utils.measure_levenshtein('aaa', 'aaab'))
-    eq_(1, utils.measure_levenshtein('aaa', 'aac'))
-    eq_(2, utils.measure_levenshtein('aaa', 'aacb'))
+    eq_(0, generator.measure_levenshtein('aaa', 'aaa'))
+    eq_(1, generator.measure_levenshtein('aaa', 'aaab'))
+    eq_(1, generator.measure_levenshtein('aaa', 'aac'))
+    eq_(2, generator.measure_levenshtein('aaa', 'aacb'))
 
 
 def test_get_match_word():
@@ -22,8 +22,8 @@ def test_get_match_word():
         "uoia": ['動きは'],
         "uoiau": ['動き出す']
     }
-    eq_(['頭'], utils.get_match_word("サカサ", tone_list))
-    eq_(['動き出す'], utils.get_match_word("ウゴキマス", tone_list))
+    eq_(['頭'], generator.get_match_word("サカサ", tone_list))
+    eq_(['動き出す'], generator.get_match_word("ウゴキマス", tone_list))
 
 
 def test_generate_rap():
@@ -37,11 +37,11 @@ def test_generate_rap():
     import pickle
     with open('prefix_searcher_da.pkl', 'rb') as w:
         prefix_searcher = pickle.load(w)
-    ok_(utils.generate_rap("逆さが", tone_list, prefix_searcher).startswith('頭'))
+    ok_(generator.generate_rap("逆さが", tone_list, prefix_searcher).startswith('頭'))
 
 
 def test_measure_initial_match_num():
-    eq_(3, utils.measure_initial_match_num('aaa', 'aaa'))
-    eq_(1, utils.measure_initial_match_num('aa', 'a'))
-    eq_(0, utils.measure_initial_match_num('aaa', 'ccc'))
-    eq_(2, utils.measure_initial_match_num('aaa', 'aacb'))
+    eq_(3, generator.measure_initial_match_num('aaa', 'aaa'))
+    eq_(1, generator.measure_initial_match_num('aa', 'a'))
+    eq_(0, generator.measure_initial_match_num('aaa', 'ccc'))
+    eq_(2, generator.measure_initial_match_num('aaa', 'aacb'))

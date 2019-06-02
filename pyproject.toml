@@ -19,7 +19,7 @@ flake8 = "^3.7"
 
 [tool.poetry.scripts]
 preprocess = "py_rap_gen.preprocess:main"
-generate = "py_rap_gen.utils:main"
+generate = "py_rap_gen.generator:main"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"

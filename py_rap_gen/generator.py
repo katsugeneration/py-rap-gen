@@ -185,4 +185,4 @@ def main():
     while True:
         print('Please Input Sentence:')
         sentence = input()
-        print(generate_rapv2(sentence, tone_list, prefix_searcher))
+        print(generate_rap(sentence, tone_list, prefix_searcher))
