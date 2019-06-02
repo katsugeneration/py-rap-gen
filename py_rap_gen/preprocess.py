@@ -6,10 +6,9 @@ import subprocess
 import pandas as pd
 import pathlib
 import pickle
-from py_rap_gen import utils
 from py_rap_gen import tone
 from py_rap_gen import counter
-from py_rap_gen import common_prefix_search
+from py_rap_gen import trie
 from py_rap_gen import graph
 
 TONE_PATH = 'mecab_tone_yomi.pkl'
@@ -125,6 +124,6 @@ def main():
     tone_list = _create_tone_list()
     with open(TONE_PATH, 'wb') as w:
         pickle.dump(tone_list, w, pickle.HIGHEST_PROTOCOL)
-    prefix_searcher = common_prefix_search.DoubleArray(tone_list.keys())
+    prefix_searcher = trie.DoubleArray(tone_list.keys())
     with open(PREFIX_SEARCHER_PATH, 'wb') as w:
         pickle.dump(prefix_searcher, w, pickle.HIGHEST_PROTOCOL)

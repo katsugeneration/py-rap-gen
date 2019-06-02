@@ -1,6 +1,6 @@
 from nose.tools import ok_, eq_, raises
 from py_rap_gen import graph
-from py_rap_gen import common_prefix_search
+from py_rap_gen import trie
 import pickle
 
     
@@ -15,7 +15,7 @@ tone_list = {
     'io': ['みこ', 'しお'],
     'oa': ['もか', 'もさ'],
 }
-prefix_searcher = common_prefix_search.DoubleArray(tone_list.keys())
+prefix_searcher = trie.DoubleArray(tone_list.keys())
 
 
 def test_construct_graph():

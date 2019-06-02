@@ -26,20 +26,6 @@ def test_get_match_word():
     eq_(['動き出す'], generator.get_match_word("ウゴキマス", tone_list))
 
 
-def test_generate_rap():
-    tone_list = {
-        "aaa": ['頭'],
-        "aaaa": ['頭が', '頭は'],
-        "uoi": ['動き'],
-        "uoia": ['動きは'],
-        "uoiau": ['動き出す']
-    }
-    import pickle
-    with open('prefix_searcher_da.pkl', 'rb') as w:
-        prefix_searcher = pickle.load(w)
-    ok_(generator.generate_rap("逆さが", tone_list, prefix_searcher).startswith('頭'))
-
-
 def test_measure_initial_match_num():
     eq_(3, generator.measure_initial_match_num('aaa', 'aaa'))
     eq_(1, generator.measure_initial_match_num('aa', 'a'))
