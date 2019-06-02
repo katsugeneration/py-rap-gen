@@ -83,3 +83,9 @@ def test_measure_initial_match_num():
     eq_(1, utils.measure_initial_match_num('aa', 'a'))
     eq_(0, utils.measure_initial_match_num('aaa', 'ccc'))
     eq_(2, utils.measure_initial_match_num('aaa', 'aacb'))
+
+
+def test_lossy_counting():
+    counter = utils.LossyCounter(epsilon=0.5)
+    counter.count(['あ', 'い', 'あ', 'あ'])
+    eq_({'あ': 3}, counter._items)
