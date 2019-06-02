@@ -79,29 +79,6 @@ class Graph(object):
 
         return g
 
-    def get_node_cost(self, node):
-        """Return node cost.
-
-        Args:
-            node (Node): target node object.
-
-        Return:
-            cost (Int): node cost value.
-        """
-        return self._learner.get_node_cost(node)
-
-    def get_edge_cost(self, prev, node):
-        """Return prev to node edge cost.
-
-        Args:
-            prev (Node): previous node object.
-            node (Node): target node object.
-
-        Return:
-            cost (Int): edge cost value.
-        """
-        return self._learner.get_edge_cost(prev, node)
-
     def search_shortest_path(self):
         """Return graph shortest path.
 
@@ -114,9 +91,9 @@ class Graph(object):
         for i in range(1, N):
             for node in self.nodes[i]:
                 node.cost = sys.maxsize
-                node_cost = self.get_node_cost(node)
+                node_cost = self._learner.get_node_cost(node)
                 for prev in self.nodes[node.start_pos]:
-                    edge_cost = self.get_edge_cost(prev, node)
+                    edge_cost = self._learner.get_edge_cost(prev, node)
                     cost = prev.cost + edge_cost + node_cost
                     if cost < node.cost:
                         node.cost = cost
@@ -172,7 +149,7 @@ class StructuredLearner(object):
         Return:
             feature (String): string represent features.
         """
-        return self.get_node_feature(prev) + '_' + self.get_node_feature(node)
+        return prev.word + '_' + node.word
 
     def get_node_cost(self, node):
         """Return node cost.
@@ -264,6 +241,28 @@ class StructuredPerceptron(StructuredLearner):
             return node.word
         else:
             return UNKNOW_WORD
+
+    def get_edge_feature(self, prev, node):
+        """Return edge feature.
+
+        Args:
+            prev (Node): previous node object.
+            node (Node): target node object.
+
+        Return:
+            feature (String): string represent features.
+        """
+        if prev.word in self._vocabs:
+            p = prev.word
+        else:
+            p = UNKNOW_WORD
+
+        if node.word in self._vocabs:
+            n = node.word
+        else:
+            n = UNKNOW_WORD
+
+        return p + '_' + n
 
     def train(self, train_data, prefix_searcher, string_list):
         """Construct convert graph.
