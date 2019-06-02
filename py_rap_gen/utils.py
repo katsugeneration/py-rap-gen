@@ -4,40 +4,9 @@
 import random
 import pickle
 from py_rap_gen import mecab
+from py_rap_gen import tone
 from py_rap_gen import graph
 import numpy as np
-
-
-tone_types = {}
-tone_types["a"] = ['ア', 'カ', 'サ', 'タ', 'ナ', 'ハ', 'マ', 'ヤ', 'ラ', 'ワ', 'ガ', 'ザ', 'ダ', 'バ', 'パ', 'ャ', 'ァ']
-tone_types["i"] = ['イ', 'キ', 'シ', 'チ', 'ニ', 'ヒ', 'ミ', 'リ', 'ギ', 'ジ', 'ヂ', 'ビ', 'ピ', 'ィ']
-tone_types["u"] = ['ウ', 'ク', 'ス', 'ツ', 'ヌ', 'フ', 'ム', 'ユ', 'ル', 'グ', 'ズ', 'ヅ', 'ブ', 'プ', 'ュ', 'ゥ', 'ヴ']
-tone_types["e"] = ['エ', 'ケ', 'セ', 'テ', 'ネ', 'ヘ', 'メ', 'レ', 'ゲ', 'ゼ', 'デ', 'ベ', 'ペ', 'ェ']
-tone_types["o"] = ['オ', 'コ', 'ソ', 'ト', 'ノ', 'ホ', 'モ', 'ヨ', 'ロ', 'ヲ', 'ゴ', 'ゾ', 'ド', 'ボ', 'ポ', 'ョ', 'ォ']
-tone_types["xtu"] = ['ッ']
-tone_types["n"] = ['ン']
-mini = ['ァ', 'ィ', 'ゥ', 'ェ', 'ォ', 'ャ', 'ュ', 'ョ']
-
-
-def _convert_tones(kana):
-    """Convert katakana to tone.
-
-    Args:
-        kana (List[String]): kana list.
-    Return:
-        tones (List[String]): tone list.
-    """
-    tones = []
-    for k in kana:
-        if k in mini and len(tones) != 0:
-            del tones[-1]
-        for t in tone_types:
-            if k in tone_types[t]:
-                tones.append(t)
-        if k == 'ー':
-            if len(tones) != 0:
-                tones.append(tones[-1])
-    return tones
 
 
 def measure_levenshtein(word1, word2):
@@ -117,7 +86,7 @@ def get_match_word(yomi, tone_list):
     Return:
         words (List[String]): match word list.
     """
-    tones = "".join(_convert_tones(yomi))
+    tones = "".join(tone.convert_tones(yomi))
 
     distances = [
         (
@@ -142,7 +111,7 @@ def get_match_word_with_searcher(yomi, tone_list, prefix_searcher):
     Return:
         words (List[String]): match word list.
     """
-    tones = _convert_tones(yomi)
+    tones = tone.convert_tones(yomi)
     N = len(tones)
     result = []
     while len(tones) != 0:
@@ -197,7 +166,7 @@ def generate_rapv2(s, tone_list, prefix_searcher):
     import pstats
     pr = cProfile.Profile()
     pr.enable()
-    tones = "".join(_convert_tones("".join(w.yomi for w in mecab.parse(s).words)))
+    tones = "".join(tone.convert_tones("".join(w.yomi for w in mecab.parse(s).words)))
     g = graph.Graph.construct_graph(prefix_searcher, tone_list, tones)
     g.learner = graph.StructuredLearner()
     path = g.search_shortest_path()

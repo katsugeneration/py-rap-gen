@@ -6,18 +6,6 @@ from py_rap_gen import utils
 def test_version():
     assert __version__ == '0.1.0'
 
-def test_convert_tones():
-    eq_(['e', 'i', 'a', 'i'], utils._convert_tones('セイタイ'))
-    eq_(['a', 'u', 'xtu'], utils._convert_tones('ヤブッ'))
-    eq_(['a', 'i', 'o', 'u', 'i', 'a'], utils._convert_tones('カリフォルニア'))
-    eq_(['o', 'u', 'e', 'u'], utils._convert_tones('チョウセツ'))
-    eq_(['o', 'o', 'a', 'e', 'i', 'o', 'u'], utils._convert_tones('ローマテイコク'))
-    eq_([], utils._convert_tones('、'))
-    eq_(['a', 'n', 'a', 'n'], utils._convert_tones('カンタン'))
-    eq_(['a', 'a', 'a'], utils._convert_tones('カラー'))
-    eq_([], utils._convert_tones('ー'))
-    eq_(['a', 'n', 'a', 'i', 'a'], utils._convert_tones('ヴァンパイア'))
-
 
 def test_measure_levenshtein():
     eq_(0, utils.measure_levenshtein('aaa', 'aaa'))

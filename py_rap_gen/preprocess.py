@@ -7,6 +7,7 @@ import pandas as pd
 import pathlib
 import pickle
 from py_rap_gen import utils
+from py_rap_gen import tone
 from py_rap_gen import counter
 from py_rap_gen import common_prefix_search
 from py_rap_gen import graph
@@ -67,7 +68,7 @@ def _create_tone_list():
     tone_list = {}
     for w in lcounter._items:
         chars = w.split()[1]
-        tones = "".join(utils._convert_tones(chars))
+        tones = "".join(tone.convert_tones(chars))
         if tones == "":
             continue
         if tones not in tone_list:
@@ -94,14 +95,14 @@ def _train_graph(prefix_searcher, tone_list):
             for line in f:
                 line = line.strip()
                 words = list(filter(lambda w: w.strip() != '', line.split('\t')))
-                words = list(filter(lambda w: all(any(c in t for t in utils.tone_types.values()) for c in w.split()[1]), words))
+                words = list(filter(lambda w: all(any(c in t for t in tone.tone_types.values()) for c in w.split()[1]), words))
                 if len(words) == 0:
                     continue
 
                 tone = []
                 ws = []
                 for w in words:
-                    tone.extend(utils._convert_tones(w.split()[1]))
+                    tone.extend(tone.convert_tones(w.split()[1]))
                     ws.append(w.split()[0])
                     if len(tone) >= 10:
                         yield tone, ws
