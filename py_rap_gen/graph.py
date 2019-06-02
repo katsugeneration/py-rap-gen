@@ -5,6 +5,11 @@ import sys
 import numpy as np
 
 
+class SearchShortestPathError(Exception):
+    """Shortest path search error"""
+    pass
+
+
 class Node(object):
     """Graph Node Object."""
     def __init__(self, start_pos, word):
@@ -67,7 +72,7 @@ class Graph(object):
 
         for i in range(len(string)):
             for s in prefix_searcher.prefix_search(string[i:]):
-                g.nodes[i + len(s)].extend([Node(i, w) for w in string_list[s]])
+                g.nodes[i + len(s)].extend([Node(i, str(w)) for w in string_list[s]])
 
         return g
 
@@ -120,6 +125,8 @@ class Graph(object):
         while node != self.BOS:
             result.insert(0, node)
             node = node.prev
+            if node is None:
+                raise SearchShortestPathError()
 
         return result
 
@@ -232,7 +239,10 @@ class StructuredPerceptron(StructuredLearner):
             for string, gold in train_data:
                 g = Graph.construct_graph(prefix_searcher, string_list, string)
                 g.learner = self
-                path = g.search_shortest_path()
+                try:
+                    path = g.search_shortest_path()
+                except SearchShortestPathError:
+                    continue
                 path = path[:-1]
                 if [n.word for n in path] != gold:
                     for i in range(len(path)):
