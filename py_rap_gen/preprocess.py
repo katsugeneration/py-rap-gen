@@ -60,7 +60,7 @@ def _create_tone_list():
                 words = filter(lambda w: w.strip() != '', words)
                 yield from words
 
-    counter = utils.LossyCounter(epsilon=1e-6)
+    counter = utils.LossyCounter(epsilon=1e-5)
     counter.count(train_data())
     print(len(counter._items))
 
@@ -97,7 +97,7 @@ def _train_graph(prefix_searcher, tone_list):
                 words = list(filter(lambda w: all(any(c in t for t in utils.tone_types.values()) for c in w.split()[1]), words))
                 if len(words) == 0:
                     continue
-                
+
                 tone = []
                 ws = []
                 for w in words:
@@ -127,6 +127,3 @@ def main():
     prefix_searcher = common_prefix_search.DoubleArray(tone_list.keys())
     with open(PREFIX_SEARCHER_PATH, 'wb') as w:
         pickle.dump(prefix_searcher, w, pickle.HIGHEST_PROTOCOL)
-    learner = _train_graph(prefix_searcher, tone_list)
-    with open(LEARNER_PATH, 'wb') as w:
-        pickle.dump(learner, w, pickle.HIGHEST_PROTOCOL)
