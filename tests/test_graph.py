@@ -39,6 +39,20 @@ def test_search_shortest_path_non_vocabulary():
     g.learner = graph.StructuredLearner()
     path = g.search_shortest_path()
 
+def test_structured_perceptron_gold_contains_non_vocabulary():
+    learner = graph.StructuredPerceptron()
+    learner.train([('aoioa',['あお', 'し', 'もさ']), ('aooa', ['た', 'と', 'と', 'さ'])], prefix_searcher, tone_list)
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aoioa')
+    g.learner = learner
+    path = g.search_shortest_path()
+    eq_('あお', path[0].word)
+    eq_('し', path[1].word)
+    eq_('もさ', path[2].word)
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aooa')
+    g.learner = learner
+    path = g.search_shortest_path()
+    ok_('た' != path[0].word)
+
 def test_structured_perceptron_multiple_sentence():
     learner = graph.StructuredPerceptron()
     learner.train([('aoioa',['あお', 'し', 'もさ']), ('aooa', ['あ', 'と', 'と', 'さ'])], prefix_searcher, tone_list)

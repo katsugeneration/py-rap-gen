@@ -5,6 +5,9 @@ import sys
 import numpy as np
 
 
+UNKNOW_WORD = "<UNKNOWN>"
+
+
 class SearchShortestPathError(Exception):
     """Shortest path search error"""
     pass
@@ -138,6 +141,15 @@ class StructuredLearner(object):
         self._feature2index = {}
         self._index2feature = []
 
+    @property
+    def N(self):
+        """Feature nums."""
+        return self._N
+
+    @N.setter
+    def N(self, val):
+        self._N = val
+
     def get_node_feature(self, node):
         """Return node feature.
 
@@ -225,7 +237,32 @@ class StructuredLearner(object):
 class StructuredPerceptron(StructuredLearner):
     def __init__(self):
         super().__init__()
-        self._epoch = 1000
+        self._epochs = 1000
+        self._vocabs = set()
+
+    @property
+    def epochs(self):
+        """Training epoch nums."""
+        return self._epochs
+
+    @epochs.setter
+    def epochs(self, val):
+        self._epochs = val
+
+    def get_node_feature(self, node):
+        """Return node feature.
+
+        Args:
+            node (Node): target node object.
+            vocabs (Set[String]): target vocabulary.
+
+        Return:
+            feature (String): string represent features.
+        """
+        if node.word in self._vocabs:
+            return node.word
+        else:
+            return UNKNOW_WORD
 
     def train(self, train_data, prefix_searcher, string_list):
         """Construct convert graph.
@@ -235,7 +272,12 @@ class StructuredPerceptron(StructuredLearner):
             prefix_searcher (TrieBase): trie data
             string_list (Hash[String, List[String]]): string to string dictionary.
         """
-        for _ in range(self._epoch):
+        vocabs = set()
+        for v in string_list.values():
+            vocabs |= set(v)
+        self._vocabs = vocabs
+
+        for _ in range(self._epochs):
             for string, gold in train_data:
                 g = Graph.construct_graph(prefix_searcher, string_list, string)
                 g.learner = self
