@@ -148,7 +148,8 @@ class StructuredLearner(object):
 
     @N.setter
     def N(self, val):
-        self._N = val
+        self._N = int(val)
+        self._w = np.ones((self._N, ), dtype=np.int32) * 1000
 
     def get_node_feature(self, node):
         """Return node feature.
