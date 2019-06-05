@@ -25,7 +25,7 @@ class TrieBase(object):
         C is character vocabulary size.
 
         Args:
-            words (List[String]): target yomi foramt words list.
+            words (List[Tuple[String]]): target yomi foramt words list.
 
         Return:
             table (List[List[Int]]): transition table.
@@ -61,10 +61,10 @@ class TrieBase(object):
         """Search common prefix words.
 
         Args:
-            word (String): target prefix.
+            word (List[String]): target prefix.
 
         Return:
-            result (List[String]): matched words.
+            result (List[Tuple[String]]): matched words.
         """
         parent = 0
         for c in word:
@@ -121,7 +121,7 @@ class DoubleArray(TrieBase):
         both arrays are node length
 
         Args:
-            words (List[String]): target yomi foramt words list.
+            words (List[Tuple[String]]): target yomi foramt words list.
 
         Return:
             base (List[Int]): transition node array.

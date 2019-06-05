@@ -5,61 +5,76 @@ from py_rap_gen import trie
 
 class TestTrieBase:
     def test_create(self):
-        tb = trie.TrieBase(['abc'])
+        tb = trie.TrieBase([('a', 'b', 'c')])
         eq_(tb._table[0], [-1, 1])
         eq_(tb._table[1], [-1, -1, 2])
         eq_(tb._table[2], [-1, -1, -1, 3])
 
     def test_create_contain_common_prefix(self):
-        tb = trie.TrieBase(['abc', 'adc'])
+        tb = trie.TrieBase([('a', 'b', 'c'), ('a', 'd' ,'c')])
         eq_(tb._table[0], [-1, 1])
         eq_(tb._table[1], [-1, -1, 2, -1, 4])
         eq_(tb._table[2], [-1, -1, -1, 3])
         eq_(tb._table[4], [-1, -1, -1, 5])
 
     def test_create_contain_common_postfix(self):
-        tb = trie.TrieBase(['abc', 'dbc'])
+        tb = trie.TrieBase([('a', 'b', 'c'), ('d', 'b' ,'c')])
         eq_(tb._table[0], [-1, 1, -1, -1, 4])
         eq_(tb._table[1], [-1, -1, 2])
         eq_(tb._table[2], [-1, -1, -1, 3])
         eq_(tb._table[4], [-1, -1, 5])
         eq_(tb._table[5], [-1, -1, -1, 6])
 
+    def test_create_multichars(self):
+        tb = trie.TrieBase([('しゃ', 'か', 'い')])
+        eq_(tb._table[0], [-1, 1])
+        eq_(tb._table[1], [-1, -1, 2])
+        eq_(tb._table[2], [-1, -1, -1, 3])
+
     def test_search(self):
-        tb = trie.TrieBase(['abc'])
-        result = tb.search('a')
-        eq_(result, ['abc'])
-        result = tb.search('ab')
-        eq_(result, ['abc'])
-        result = tb.search('abc')
-        eq_(result, ['abc'])
+        tb = trie.TrieBase([('a', 'b', 'c')])
+        result = tb.search(['a'])
+        eq_(result, [('a', 'b', 'c')])
+        result = tb.search(['a', 'b'])
+        eq_(result, [('a', 'b', 'c')])
+        result = tb.search(['a', 'b', 'c'])
+        eq_(result, [('a', 'b', 'c')])
 
     def test_search_case_non_result(self):
-        tb = trie.TrieBase(['abc'])
-        result = tb.search('aba')
+        tb = trie.TrieBase([('a', 'b', 'c')])
+        result = tb.search(['a', 'b', 'a'])
         eq_(result, [])
-        result = tb.search('ac')
+        result = tb.search(['a', 'c'])
         eq_(result, [])
-        result = tb.search('b')
+        result = tb.search(['b'])
         eq_(result, [])
 
     def test_search_case_non_vocabulary(self):
-        tb = trie.TrieBase(['abc'])
-        result = tb.search('abd')
+        tb = trie.TrieBase([('a', 'b', 'c')])
+        result = tb.search(['a', 'b', 'd'])
         eq_(result, [])
-        result = tb.search('ad')
+        result = tb.search(['a', 'd'])
         eq_(result, [])
-        result = tb.search('d')
+        result = tb.search(['d'])
         eq_(result, [])
 
     def test_search_case_two_words(self):
-        tb = trie.TrieBase(['abc', 'abd'])
-        result = tb.search('a')
-        eq_(result, ['abc', 'abd'])
-        result = tb.search('ab')
-        eq_(result, ['abc', 'abd'])
-        result = tb.search('abc')
-        eq_(result, ['abc'])
+        tb = trie.TrieBase([('a', 'b', 'c'), ('a', 'b', 'd')])
+        result = tb.search(['a'])
+        eq_(result, [('a', 'b', 'c'), ('a', 'b', 'd')])
+        result = tb.search(['a', 'b'])
+        eq_(result, [('a', 'b', 'c'), ('a', 'b', 'd')])
+        result = tb.search(['a', 'b', 'c'])
+        eq_(result, [('a', 'b', 'c')])
+
+    def test_search_multichars(self):
+        tb = trie.TrieBase([('しゃ', 'か', 'い')])
+        result = tb.search(['しゃ'])
+        eq_(result, [('しゃ', 'か', 'い')])
+        result = tb.search(['しゃ', 'か'])
+        eq_(result, [('しゃ', 'か', 'い')])
+        result = tb.search(['しゃ', 'か', 'い'])
+        eq_(result, [('しゃ', 'か', 'い')])
 
 
 class TestDoubleArray:
