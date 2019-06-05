@@ -4,13 +4,13 @@ from py_rap_gen import tone
 
 
 def testconvert_tones():
-    eq_(['e', 'i', 'a', 'i'], tone.convert_tones('セイタイ'))
-    eq_(['a', 'u', 'xtu'], tone.convert_tones('ヤブッ'))
-    eq_(['a', 'i', 'o', 'u', 'i', 'a'], tone.convert_tones('カリフォルニア'))
-    eq_(['o', 'u', 'e', 'u'], tone.convert_tones('チョウセツ'))
-    eq_(['o', 'o', 'a', 'e', 'i', 'o', 'u'], tone.convert_tones('ローマテイコク'))
-    eq_([], tone.convert_tones('、'))
-    eq_(['a', 'n', 'a', 'n'], tone.convert_tones('カンタン'))
-    eq_(['a', 'a', 'a'], tone.convert_tones('カラー'))
-    eq_([], tone.convert_tones('ー'))
-    eq_(['a', 'n', 'a', 'i', 'a'], tone.convert_tones('ヴァンパイア'))
+    eq_((['e', 'i', 'a', 'i'], ['セ', 'イ', 'タ', 'イ']), tone.convert_tones('セイタイ'))
+    eq_((['a', 'u', 'xtu'], ['ヤ', 'ブ', 'ッ']), tone.convert_tones('ヤブッ'))
+    eq_((['a', 'i', 'o', 'u', 'i', 'a'], ['カ', 'リ', 'フォ', 'ル', 'ニ', 'ア']), tone.convert_tones('カリフォルニア'))
+    eq_((['o', 'u', 'e', 'u'], ['チョ', 'ウ', 'セ', 'ツ']), tone.convert_tones('チョウセツ'))
+    eq_((['o', 'o', 'a', 'e', 'i', 'o', 'u'], ['ロ', 'ー', 'マ', 'テ', 'イ', 'コ', 'ク']), tone.convert_tones('ローマテイコク'))
+    eq_(([], []), tone.convert_tones('、'))
+    eq_((['a', 'n', 'a', 'n'], ['カ', 'ン', 'タ', 'ン']), tone.convert_tones('カンタン'))
+    eq_((['a', 'a', 'a'], ['カ', 'ラ', 'ー']), tone.convert_tones('カラー'))
+    eq_(([], []), tone.convert_tones('ー'))
+    eq_((['a', 'n', 'a', 'i', 'a'], ['ヴァ', 'ン', 'パ', 'イ', 'ア']), tone.convert_tones('ヴァンパイア'))

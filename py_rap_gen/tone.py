@@ -18,18 +18,25 @@ def convert_tones(kana):
     """Convert katakana to tone.
 
     Args:
-        kana (List[String]): kana list.
+        kana (String): kana list.
     Return:
         tones (List[String]): tone list.
+        splitted_kana (List[String]): splitted kana list.
     """
     tones = []
+    splitted_kana = []
     for k in kana:
         if k in mini and len(tones) != 0:
             del tones[-1]
         for t in tone_types:
             if k in tone_types[t]:
+                if k in mini:
+                    splitted_kana[-1] += k
+                else:
+                    splitted_kana.append(k)
                 tones.append(t)
         if k == 'ー':
             if len(tones) != 0:
+                splitted_kana.append(k)
                 tones.append(tones[-1])
-    return tones
+    return tones, splitted_kana
