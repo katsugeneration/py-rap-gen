@@ -86,7 +86,8 @@ def get_match_word(yomi, tone_list):
     Return:
         words (List[String]): match word list.
     """
-    tones = "".join(tone.convert_tones(yomi))
+    tones, _ = tone.convert_tones(yomi)
+    tones = "".join(tones)
 
     distances = [
         (
