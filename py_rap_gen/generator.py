@@ -112,7 +112,7 @@ def get_match_word_with_searcher(yomi, tone_list, prefix_searcher):
     Return:
         words (List[String]): match word list.
     """
-    tones = tone.convert_tones(yomi)
+    tones, _ = tone.convert_tones(yomi)
     N = len(tones)
     result = []
     while len(tones) != 0:
