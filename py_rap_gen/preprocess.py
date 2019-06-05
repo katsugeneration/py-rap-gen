@@ -60,19 +60,32 @@ def _create_tone_list():
                 words = filter(lambda w: w.strip() != '', words)
                 yield from words
 
-    lcounter = counter.LossyCounter(epsilon=1e-5)
+    lcounter = counter.LossyCounter(epsilon=1e-6)
     lcounter.count(train_data())
     print(len(lcounter._items))
 
     tone_list = {}
+    count = 0
     for w in lcounter._items:
         chars = w.split()[1]
-        tones = "".join(tone.convert_tones(chars))
-        if tones == "":
+        tones, kana = tone.convert_tones(chars)
+
+        if len(tones) == 0:
+            count += 1
             continue
-        if tones not in tone_list:
-            tone_list[tones] = []
-        tone_list[tones].append(w.split()[0])
+        if len(tones) != len(kana):
+            count += 1
+            continue
+
+        # TODO: 任意の文字数をカナに変換する処理をいれる
+        for i in range(len(kana)):
+            t = tones[:i] + [kana[i]] + tones[i+1:]
+            t = "".join(t)
+            if t not in tone_list:
+                tone_list[t] = []
+            tone_list[t].append(w.split()[0])
+    print("Remove Count:", count)
+    print('Total Count:', sum(1 for t in tone_list for l in tone_list[t]))
     return tone_list
 
 
