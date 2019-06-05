@@ -54,22 +54,22 @@ def _mix_tone_and_kana(tones, kanas):
         kanas (List[String]): kana splitted list.
 
     Return:
-        ret (List[String]): kana and tone mixes list.
+        ret (List[Tuple[String]]): kana and tone mixes list.
     """
     if len(tones) != len(kanas):
         return []
 
-    ret = ["".join(tones)]
+    ret = [tuple(tones)]
 
     for i in range(len(tones)):
         first = tones[:i] + [kanas[i]] + tones[i+1:]
-        ret.append("".join(first))
+        ret.append(tuple(first))
         for j in range(len(tones)):
             if i == j:
                 continue
                 prev = copy.copy(first)
                 prev[j] = kanas[j]
-                ret.append(prev)
+                ret.append(tuple(prev))
 
     return ret
 
