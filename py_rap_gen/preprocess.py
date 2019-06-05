@@ -6,6 +6,7 @@ import subprocess
 import pandas as pd
 import pathlib
 import pickle
+import copy
 from py_rap_gen import tone
 from py_rap_gen import counter
 from py_rap_gen import trie
@@ -45,6 +46,34 @@ def _preprocess_dict(path):
     return _dict
 
 
+def _mix_tone_and_kana(tones, kanas):
+    """Return kana and tone mixes list.
+
+    Args:
+        tones (List[String]): tone splitted list.
+        kanas (List[String]): kana splitted list.
+
+    Return:
+        ret (List[String]): kana and tone mixes list.
+    """
+    if len(tones) != len(kanas):
+        return []
+
+    ret = ["".join(tones)]
+
+    for i in range(len(tones)):
+        first = tones[:i] + [kanas[i]] + tones[i+1:]
+        ret.append("".join(first))
+        for j in range(len(tones)):
+            if i == j:
+                continue
+                prev = copy.copy(first)
+                prev[j] = kanas[j]
+                ret.append(prev)
+
+    return ret
+
+
 def _create_tone_list():
     """Return tone to string dictionary.
 
@@ -77,10 +106,7 @@ def _create_tone_list():
             count += 1
             continue
 
-        # TODO: 任意の文字数をカナに変換する処理をいれる
-        for i in range(len(kana)):
-            t = tones[:i] + [kana[i]] + tones[i+1:]
-            t = "".join(t)
+        for t in _mix_tone_and_kana(tones, kana):
             if t not in tone_list:
                 tone_list[t] = []
             tone_list[t].append(w.split()[0])
