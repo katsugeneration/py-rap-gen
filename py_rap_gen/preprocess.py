@@ -6,6 +6,7 @@ import subprocess
 import pandas as pd
 import pathlib
 import pickle
+import random
 import copy
 from py_rap_gen import tone
 from py_rap_gen import counter
@@ -137,21 +138,25 @@ def _train_graph(prefix_searcher, tone_list):
                 if len(words) == 0:
                     continue
 
-                tone = []
+                t = []
                 ws = []
                 for w in words:
-                    tone.extend(tone.convert_tones(w.split()[1]))
+                    tones, kanas = tone.convert_tones(w.split()[1])
+                    for i in range(len(tones)):
+                        if 0.7 < random.random():
+                            tones[i] = kanas[i]
+                    t.extend(tones)
                     ws.append(w.split()[0])
-                    if len(tone) >= 10:
-                        yield tone, ws
-                        tone = []
+                    if len(t) >= 6:
+                        yield t, ws
+                        t = []
                         ws = []
-                if len(tone) != 0:
-                    yield tone, ws
+                if len(t) != 0:
+                    yield t, ws
 
     learner = graph.StructuredPerceptron()
     learner.N = 1e7
-    learner.epochs = 10
+    learner.epochs = 1
     learner.train(iteratorWrapper(train_data), prefix_searcher, tone_list)
     return learner
 
@@ -166,3 +171,6 @@ def main():
     prefix_searcher = trie.DoubleArray(tone_list.keys())
     with open(PREFIX_SEARCHER_PATH, 'wb') as w:
         pickle.dump(prefix_searcher, w, pickle.HIGHEST_PROTOCOL)
+    learner = _train_graph(prefix_searcher, tone_list)
+    with open(LEARNER_PATH, 'wb') as w:
+        pickle.dump(learner, w, pickle.HIGHEST_PROTOCOL)
