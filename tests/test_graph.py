@@ -5,21 +5,21 @@ import pickle
 
     
 tone_list = {
-    'a': ['あ', 'か', 'さ'],
-    'ao': ['あお', 'かお', 'さと'],
-    'aoi': ['あおい', 'さとみ'],
-    'o': ['と'],
-    'oi': ['とい', 'こい', 'とし'],
-    'oio': ['たいよ', 'はいりょ'],
-    'i': ['き', 'し'],
-    'io': ['みこ', 'しお'],
-    'oa': ['もか', 'もさ'],
+    ('a',): ['あ', 'か', 'さ'],
+    ('a', 'o'): ['あお', 'かお', 'さと'],
+    ('a', 'o', 'i'): ['あおい', 'さとみ'],
+    ('o',): ['と'],
+    ('o', 'i'): ['とい', 'こい', 'とし'],
+    ('o', 'i', 'o'): ['たいよ', 'はいりょ'],
+    ('i',): ['き', 'し'],
+    ('i', 'o'): ['みこ', 'しお'],
+    ('o', 'a'): ['もか', 'もさ'],
 }
 prefix_searcher = trie.DoubleArray(tone_list.keys())
 
 
 def test_construct_graph():
-    g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aoioa')
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'i', 'o', 'a'))
     eq_([g.BOS], g.nodes[0])
     eq_(set([graph.Node(0, 'か'), graph.Node(0, 'あ'), graph.Node(0, 'さ')]), set(g.nodes[1]))
     eq_(set([graph.Node(0, 'あお'), graph.Node(0, 'かお'), graph.Node(0, 'さと'), graph.Node(1, 'と')]),
@@ -27,7 +27,7 @@ def test_construct_graph():
     eq_([g.EOS], g.nodes[6])
 
 def test_search_shortest_path():
-    g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aoioa')
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'i', 'o', 'a'))
     g.learner = graph.StructuredLearner()
     path = g.search_shortest_path()
     eq_('あおい', path[0].word)
@@ -35,34 +35,34 @@ def test_search_shortest_path():
 
 @raises(graph.SearchShortestPathError)
 def test_search_shortest_path_non_vocabulary():
-    g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aouoa')
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'u', 'o', 'a'))
     g.learner = graph.StructuredLearner()
     path = g.search_shortest_path()
 
 def test_structured_perceptron_gold_contains_non_vocabulary():
     learner = graph.StructuredPerceptron()
-    learner.train([('aoioa',['あお', 'し', 'もさ']), ('aooa', ['た', 'と', 'と', 'さ'])], prefix_searcher, tone_list)
-    g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aoioa')
+    learner.train([(('a', 'o', 'i', 'o', 'a'),['あお', 'し', 'もさ']), (('a', 'o', 'o', 'a'), ['た', 'と', 'と', 'さ'])], prefix_searcher, tone_list)
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'i', 'o', 'a'))
     g.learner = learner
     path = g.search_shortest_path()
     eq_('あお', path[0].word)
     eq_('し', path[1].word)
     eq_('もさ', path[2].word)
-    g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aooa')
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'o', 'a'))
     g.learner = learner
     path = g.search_shortest_path()
     ok_('た' != path[0].word)
 
 def test_structured_perceptron_multiple_sentence():
     learner = graph.StructuredPerceptron()
-    learner.train([('aoioa',['あお', 'し', 'もさ']), ('aooa', ['あ', 'と', 'と', 'さ'])], prefix_searcher, tone_list)
-    g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aoioa')
+    learner.train([(('a', 'o', 'i', 'o', 'a'),['あお', 'し', 'もさ']), (('a', 'o', 'o', 'a'), ['あ', 'と', 'と', 'さ'])], prefix_searcher, tone_list)
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'i', 'o', 'a'))
     g.learner = learner
     path = g.search_shortest_path()
     eq_('あお', path[0].word)
     eq_('し', path[1].word)
     eq_('もさ', path[2].word)
-    g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aooa')
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'o', 'a'))
     g.learner = learner
     path = g.search_shortest_path()
     eq_('あ', path[0].word)
@@ -79,18 +79,18 @@ def test_structured_perceptron_iterator():
             return self._func()
 
     def data():
-        for s, d in [('aoioa',['あお', 'し', 'もさ']), ('aooa', ['あ', 'と', 'と', 'さ'])]:
+        for s, d in [(('a', 'o', 'i', 'o', 'a'),['あお', 'し', 'もさ']), (('a', 'o', 'o', 'a'), ['あ', 'と', 'と', 'さ'])]:
             yield (s, d)
 
     learner = graph.StructuredPerceptron()
     learner.train(iteratorWrapper(data), prefix_searcher, tone_list)
-    g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aoioa')
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'i', 'o', 'a'))
     g.learner = learner
     path = g.search_shortest_path()
     eq_('あお', path[0].word)
     eq_('し', path[1].word)
     eq_('もさ', path[2].word)
-    g = graph.Graph.construct_graph(prefix_searcher, tone_list, 'aooa')
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'o', 'a'))
     g.learner = learner
     path = g.search_shortest_path()
     eq_('あ', path[0].word)

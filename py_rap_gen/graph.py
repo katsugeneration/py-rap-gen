@@ -59,8 +59,8 @@ class Graph(object):
 
         Args:
             prefix_searcher (TrieBase): trie data
-            string_list (Hash[String, List[String]]): string to string dictionary.
-            string (String): target string.
+            string_list (Hash[Tuple[String], List[String]]): string to string dictionary.
+            string (Tuple[String]): target string.
 
         Return:
             graph (Graph): new graph object.
@@ -207,7 +207,7 @@ class StructuredLearner(object):
         """Training learnier.
 
         Args:
-            train_data (List[Tuple[String, List[String]]]): trainning data construct target string and correct sentenece pairs.
+            train_data (List[Tuple[Tuple[String], List[String]]]): trainning data construct target string and correct sentenece pairs.
         """
         pass
 
@@ -268,9 +268,9 @@ class StructuredPerceptron(StructuredLearner):
         """Construct convert graph.
 
         Args:
-            train_data (List[Tuple[String, List[String]]]): trainning data construct target string and correct sentenece pairs.
+            train_data (List[Tuple[Tuple[String], List[String]]]): trainning data construct target string and correct sentenece pairs.
             prefix_searcher (TrieBase): trie data
-            string_list (Hash[String, List[String]]): string to string dictionary.
+            string_list (Hash[Tuple[String], List[String]]): string to string dictionary.
         """
         vocabs = set()
         for v in string_list.values():
