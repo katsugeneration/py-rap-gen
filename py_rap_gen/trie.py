@@ -198,10 +198,10 @@ class DoubleArray(TrieBase):
         """Search word prefix match words.
 
         Args:
-            word (String): target word.
+            word (List[String]): target word.
 
         Return:
-            result (List[String]): words matched word prefix.
+            result (List[Tuple[String]]): words matched word prefix.
         """
         parent = 0
         result = []
@@ -224,11 +224,11 @@ class DoubleArray(TrieBase):
         """Search common prefix words.
 
         Args:
-            word (String): target prefix.
+            word (List[String]): target prefix.
             max_len (Int): maximum word length. minus value is ignored.
 
         Return:
-            result (List[String]): matched words fewer length than max_len.
+            result (List[Tuple[String]]): matched words fewer length than max_len.
         """
         parent = 0
         length = 0
