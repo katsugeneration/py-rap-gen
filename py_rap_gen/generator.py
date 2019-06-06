@@ -167,7 +167,18 @@ def generate_rapv2(s, tone_list, prefix_searcher):
     import pstats
     pr = cProfile.Profile()
     pr.enable()
-    tones = "".join(tone.convert_tones("".join(w.yomi for w in mecab.parse(s).words)))
+    t = []
+    for w in mecab.parse(s).words:
+        tones, kana = tone.convert_tones(w.yomi)
+        if len(tones) == 0:
+            continue
+        if w.pos == "名詞" or w.pos == "形容詞" or w.pos == "動詞":
+            tones[-1] = kana[-1]
+        else:
+            if 0.7 < random.random():
+                tones[-1] = kana[-1]
+        t += tones
+    tones = "".join(t)
     g = graph.Graph.construct_graph(prefix_searcher, tone_list, tones)
     g.learner = graph.StructuredLearner()
     path = g.search_shortest_path()
@@ -187,5 +198,5 @@ def main():
         print('Please Input Sentence:')
         sentence = input()
         print('\nOutput Sentence:')
-        print(generate_rap(sentence, tone_list, prefix_searcher))
+        print(generate_rapv2(sentence, tone_list, prefix_searcher))
         print('\n')
