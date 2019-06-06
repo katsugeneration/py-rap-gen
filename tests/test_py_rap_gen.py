@@ -16,11 +16,11 @@ def test_measure_levenshtein():
 
 def test_get_match_word():
     tone_list = {
-        "aaa": ['頭'],
-        "aaaa": ['頭が', '頭は'],
-        "uoi": ['動き'],
-        "uoia": ['動きは'],
-        "uoiau": ['動き出す']
+        ("a", "a", "a"): ['頭'],
+        ("a", "a", "a", "a"): ['頭が', '頭は'],
+        ("u", "o", "i"): ['動き'],
+        ("u", "o", "i", "a"): ['動きは'],
+        ("u", "o", "i", "a", "u"): ['動き出す']
     }
     eq_(['頭'], generator.get_match_word("サカサ", tone_list))
     eq_(['動き出す'], generator.get_match_word("ウゴキマス", tone_list))
