@@ -6,7 +6,6 @@ import subprocess
 import pandas as pd
 import pathlib
 import pickle
-import random
 import copy
 from py_rap_gen import tone
 from py_rap_gen import counter
@@ -142,9 +141,10 @@ def _train_graph(prefix_searcher, tone_list):
                 ws = []
                 for w in words:
                     tones, kanas = tone.convert_tones(w.split()[1])
-                    for i in range(len(tones)):
-                        if 0.7 < random.random():
-                            tones[i] = kanas[i]
+                    if len(tones) == 0:
+                        continue
+                    if len(tones) != 1:
+                        tones[-1] = kanas[-1]
                     t.extend(tones)
                     ws.append(w.split()[0])
                     if len(t) >= 6:
