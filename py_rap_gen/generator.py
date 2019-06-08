@@ -153,13 +153,14 @@ def generate_rap(s, tone_list, prefix_searcher):
     )
 
 
-def generate_rapv2(s, tone_list, prefix_searcher):
+def generate_rapv2(s, tone_list, prefix_searcher, learner):
     """Return generated rap.
 
     Aarg:
         s (str): target sentence.
-        tone_list (str): tone dictionary.
+        tone_list (Hash[Tuple[String], List[String]]): string to string dictionary.
         prefix_searcher (TrieBase): Trie Prefix Searcher class
+        learner (StructuredLearner): pre-trained structured learner
     Return:
         rap (str): generated rap
     """
@@ -178,10 +179,12 @@ def generate_rapv2(s, tone_list, prefix_searcher):
             if 0.7 < random.random():
                 tones[-1] = kana[-1]
         t += tones
-    tones = "".join(t)
-    g = graph.Graph.construct_graph(prefix_searcher, tone_list, tones)
-    g.learner = graph.StructuredLearner()
-    path = g.search_shortest_path()
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, t)
+    g.learner = learner
+    try:
+        path = g.search_shortest_path()
+    except graph.SearchShortestPathError:
+        return ""
     path = path[:-1]
     pr.disable()
     ps = pstats.Stats(pr).sort_stats(*["time", "calls"])
@@ -194,9 +197,11 @@ def main():
         tone_list = pickle.load(w)
     with open('prefix_searcher.pkl', 'rb') as w:
         prefix_searcher = pickle.load(w)
+    with open('learner.pkl', 'rb') as w:
+        learner = pickle.load(w)
     while True:
         print('Please Input Sentence:')
         sentence = input()
         print('\nOutput Sentence:')
-        print(generate_rapv2(sentence, tone_list, prefix_searcher))
+        print(generate_rapv2(sentence, tone_list, prefix_searcher, learner))
         print('\n')
