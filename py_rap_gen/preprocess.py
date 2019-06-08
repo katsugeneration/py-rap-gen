@@ -6,7 +6,7 @@ import subprocess
 import pandas as pd
 import pathlib
 import pickle
-import copy
+import random
 from py_rap_gen import tone
 from py_rap_gen import counter
 from py_rap_gen import trie
@@ -59,17 +59,14 @@ def _mix_tone_and_kana(tones, kanas):
     if len(tones) != len(kanas):
         return []
 
-    ret = [tuple(tones)]
+    ret = []
 
-    for i in range(len(tones)):
-        first = tones[:i] + [kanas[i]] + tones[i+1:]
-        ret.append(tuple(first))
-        for j in range(len(tones)):
-            if i == j:
-                continue
-                prev = copy.copy(first)
-                prev[j] = kanas[j]
-                ret.append(tuple(prev))
+    if len(tones) == 1:
+        ret.append(tuple(tones))
+        ret.append(tuple(kanas))
+    else:
+        ret.append(tuple(tones[:-1] + [kanas[-1]]))
+        ret.append(tuple([kanas[0]] + tones[1:]))
 
     return ret
 
@@ -129,8 +126,12 @@ def _train_graph(prefix_searcher, tone_list):
             return self._func()
 
     def train_data():
+        count = 0
         with open("data", 'r') as f:
             for line in f:
+                if random.random() > 0.01:
+                    continue
+                count += 1
                 line = line.strip()
                 words = list(filter(lambda w: w.strip() != '', line.split('\t')))
                 words = list(filter(lambda w: all(any(c in t for t in tone.tone_types.values()) for c in w.split()[1]), words))
@@ -143,16 +144,20 @@ def _train_graph(prefix_searcher, tone_list):
                     tones, kanas = tone.convert_tones(w.split()[1])
                     if len(tones) == 0:
                         continue
-                    if len(tones) != 1:
+                    if random.random() > 0.5:
                         tones[-1] = kanas[-1]
+                    else:
+                        tones[0] = kanas[0]
                     t.extend(tones)
                     ws.append(w.split()[0])
-                    if len(t) >= 6:
+                    if len(t) >= 10:
                         yield t, ws
                         t = []
                         ws = []
                 if len(t) != 0:
                     yield t, ws
+                if count >= 1000000:
+                    break
 
     learner = graph.StructuredPerceptron()
     learner.N = 1e7
