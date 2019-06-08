@@ -211,7 +211,7 @@ class DoubleArray(TrieBase):
                 break
 
             child = self._base[parent] + self._char2index[c]
-            if self._check[child] != parent:
+            if child >= len(self._check) or self._check[child] != parent:
                 break
 
             parent = child
@@ -239,7 +239,7 @@ class DoubleArray(TrieBase):
                 return []
 
             child = self._base[parent] + self._char2index[c]
-            if self._check[child] != parent:
+            if child >= len(self._check) or self._check[child] != parent:
                 return []
 
             parent = child

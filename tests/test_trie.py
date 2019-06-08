@@ -159,6 +159,11 @@ class TestDoubleArray:
         result = da.search(['しゃ', 'か', 'い'])
         eq_(result, [('しゃ', 'か', 'い')])
 
+    def test_search_over_checklen(self):
+        da = trie.DoubleArray([('a', 'b', 'c'), ('a', 'd', 'c')])
+        result = da.search(['a', 'd', 'd'])
+        eq_(result, [])
+
     def test_prefix_search(self):
         da = trie.DoubleArray([('a'), ('a', 'b'), ('a', 'b', 'c')])
         result = da.prefix_search(['a'])
@@ -190,3 +195,8 @@ class TestDoubleArray:
         eq_(result, [('しゃ',), ('しゃ', 'か')])
         result = da.prefix_search(['しゃ', 'か', 'い'])
         eq_(result, [('しゃ',), ('しゃ', 'か'), ('しゃ', 'か', 'い')])
+
+    def test_prefix_search_over_checklen(self):
+        da = trie.DoubleArray([('a', 'b', 'c'), ('a', 'd', 'c')])
+        result = da.prefix_search(['a', 'd', 'd'])
+        eq_(result, [])
