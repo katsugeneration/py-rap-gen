@@ -2,6 +2,8 @@
 # Copyright 2019 Katsuya Shimabukuro.
 """Graph Shortes Path Solution."""
 import sys
+import functools
+from multiprocessing import pool
 import numpy as np
 
 
@@ -114,7 +116,7 @@ class Graph(object):
 class StructuredLearner(object):
     def __init__(self):
         self._N = 10000
-        self._w = np.ones((self._N, ), dtype=np.int32) * 1000
+        self._w = np.ones((self._N, ), dtype=np.float32) * 1000
         self._feature2index = {}
         self._index2feature = []
 
@@ -126,7 +128,18 @@ class StructuredLearner(object):
     @N.setter
     def N(self, val):
         self._N = int(val)
-        self._w = np.ones((self._N, ), dtype=np.int32) * 1000
+        self._w = np.ones((self._N, ), dtype=np.float32) * 1000
+
+    def construct_feature(self, features):
+        """Construct feature dictionary.
+
+        Args:
+            features (List[String]): feature string list.
+        """
+        for f in features:
+            if len(self._index2feature) < self._N:
+                self._index2feature.append(f)
+                self._feature2index[f] = len(self._index2feature) - 1
 
     def get_node_feature(self, node):
         """Return node feature.
@@ -162,11 +175,7 @@ class StructuredLearner(object):
         """
         feature = self.get_node_feature(node)
         if feature not in self._feature2index:
-            if len(self._index2feature) < self._N:
-                self._index2feature.append(feature)
-                self._feature2index[feature] = len(self._index2feature) - 1
-            else:
-                return 0
+            return 0
 
         return self._w[self._feature2index[feature]]
 
@@ -182,11 +191,7 @@ class StructuredLearner(object):
         """
         feature = self.get_edge_feature(prev, node)
         if feature not in self._feature2index:
-            if len(self._index2feature) < self._N:
-                self._index2feature.append(feature)
-                self._feature2index[feature] = len(self._index2feature) - 1
-            else:
-                return 0
+            return 0
 
         return self._w[self._feature2index[feature]]
 
@@ -276,6 +281,11 @@ class StructuredPerceptron(StructuredLearner):
         for v in string_list.values():
             vocabs |= set(v)
         self._vocabs = vocabs
+
+        for v in self._vocabs:
+            feature = self.get_node_feature(Node(-1, v))
+            self._index2feature.append(feature)
+            self._feature2index[feature] = len(self._index2feature) - 1
 
         for _ in range(self._epochs):
             for string, gold in train_data:

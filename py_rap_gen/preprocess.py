@@ -86,8 +86,21 @@ def _create_tone_list():
                 words = filter(lambda w: w.strip() != '', words)
                 yield from words
 
+    def train_data_2gram(lcounter):
+        g = graph.Graph()
+        with open("data", 'r') as f:
+            for line in f:
+                line = line.strip()
+                words = line.split('\t')
+                words = filter(lambda w: w.strip() != '', words)
+                words = [w if w in lcounter._items else graph.UNKNOW_WORD for w in words]
+                words = [g.BOS.word] + words + [g.EOS.word]
+                yield from [words[i].split()[0] + '_' + words[i+1].split()[0] for i in range(len(words) - 1)]
+
     lcounter = counter.LossyCounter(epsilon=1e-6)
-    lcounter.count(train_data())
+    lcounter.count(train_data()))
+    lcounter_2gram = counter.LossyCounter(epsilon=1e-6)
+    lcounter_2gram.count(train_data_2gram(lcounter))
     print(len(lcounter._items))
 
     tone_list = {}
@@ -109,10 +122,10 @@ def _create_tone_list():
             tone_list[t].append(w.split()[0])
     print("Remove Count:", count)
     print('Total Count:', sum(1 for t in tone_list for l in tone_list[t]))
-    return tone_list
+    return tone_list, lcounter_2gram
 
 
-def _train_graph(prefix_searcher, tone_list):
+def _train_graph(prefix_searcher, tone_list, lcounter_2gram):
     """Training Structured learner.
 
     Return:
@@ -162,6 +175,7 @@ def _train_graph(prefix_searcher, tone_list):
     learner = graph.StructuredPerceptron()
     learner.N = 1e7
     learner.epochs = 1
+    learner.construct_feature(list(lcounter_2gram._items))
     learner.train(iteratorWrapper(train_data), prefix_searcher, tone_list)
     return learner
 
@@ -170,12 +184,14 @@ def main():
     ret = subprocess.call("./download.sh", shell=True)
     if ret != 0:
         return False
-    tone_list = _create_tone_list()
+    tone_list, lcounter_2gram = _create_tone_list()
     with open(TONE_PATH, 'wb') as w:
         pickle.dump(tone_list, w, pickle.HIGHEST_PROTOCOL)
+    with open('counter_2gram.pkl', 'wb') as w:
+        pickle.dump(lcounter_2gram, w, pickle.HIGHEST_PROTOCOL)
     prefix_searcher = trie.DoubleArray(tone_list.keys())
     with open(PREFIX_SEARCHER_PATH, 'wb') as w:
         pickle.dump(prefix_searcher, w, pickle.HIGHEST_PROTOCOL)
-    learner = _train_graph(prefix_searcher, tone_list)
+    learner = _train_graph(prefix_searcher, tone_list, lcounter_2gram)
     with open(LEARNER_PATH, 'wb') as w:
         pickle.dump(learner, w, pickle.HIGHEST_PROTOCOL)
