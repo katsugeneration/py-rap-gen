@@ -2,8 +2,6 @@
 # Copyright 2019 Katsuya Shimabukuro.
 """Graph Shortes Path Solution."""
 import sys
-import functools
-from multiprocessing import pool
 import numpy as np
 
 
@@ -175,7 +173,11 @@ class StructuredLearner(object):
         """
         feature = self.get_node_feature(node)
         if feature not in self._feature2index:
-            return 0
+            if len(self._index2feature) < self._N:
+                self._index2feature.append(feature)
+                self._feature2index[feature] = len(self._index2feature) - 1
+            else:
+                return 0
 
         return self._w[self._feature2index[feature]]
 
@@ -191,7 +193,11 @@ class StructuredLearner(object):
         """
         feature = self.get_edge_feature(prev, node)
         if feature not in self._feature2index:
-            return 0
+            if len(self._index2feature) < self._N:
+                self._index2feature.append(feature)
+                self._feature2index[feature] = len(self._index2feature) - 1
+            else:
+                return 0
 
         return self._w[self._feature2index[feature]]
 
