@@ -170,11 +170,6 @@ def generate_rapv2(s, tone_list, prefix_searcher, learner):
         if len(tones) == 0:
             continue
         tones[-1] = kana[-1]
-        try:
-            i = kana.index('ー')
-            tones[i] = kana[i]
-        except ValueError:
-            pass
         t += tones
     g = graph.Graph.construct_graph(prefix_searcher, tone_list, t)
     g.learner = learner
