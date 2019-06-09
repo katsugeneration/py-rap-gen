@@ -173,11 +173,12 @@ def generate_rapv2(s, tone_list, prefix_searcher, learner):
         tones, kana = tone.convert_tones(w.yomi)
         if len(tones) == 0:
             continue
-        if w.pos == "名詞" or w.pos == "形容詞" or w.pos == "動詞":
-            tones[-1] = kana[-1]
-        else:
-            if 0.7 < random.random():
-                tones[-1] = kana[-1]
+        tones[-1] = kana[-1]
+        try:
+            i = kana.index('ー')
+            tones[i] = kana[i]
+        except ValueError:
+            pass
         t += tones
     g = graph.Graph.construct_graph(prefix_searcher, tone_list, t)
     g.learner = learner
