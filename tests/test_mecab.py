@@ -44,3 +44,16 @@ def test_mecab_case3():
     eq_(sentence.words[3].pos, "名詞")
     eq_(sentence.words[4].surface, "。")
     eq_(sentence.words[4].pos, "記号")
+
+def test_mecab_yomi_and_pronounce():
+    sentence = mecab.parse("aaaa")
+    eq_(sentence.words[0].yomi, "aaaa")
+    eq_(sentence.words[0].pronounce, "aaaa")
+    sentence = mecab.parse("君はまさに俺の太陽")
+    eq_(sentence.words[1].yomi, "ハ")
+    eq_(sentence.words[1].pronounce, "ワ")
+    eq_(sentence.words[5].yomi, "タイヨウ")
+    eq_(sentence.words[5].pronounce, "タイヨー")
+    sentence = mecab.parse("気づいた")
+    eq_(sentence.words[0].yomi, "キヅイ")
+    eq_(sentence.words[0].pronounce, "キズイ")

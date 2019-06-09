@@ -11,12 +11,13 @@ class Word(object):
 
     def __init__(self, output):
         """Initialize mecab one word class from mecab one line."""
-        pos, pos1, surface, base, yomi = self._parse_mecab_output(output)
+        pos, pos1, surface, base, yomi, pronounce = self._parse_mecab_output(output)
         self.pos = pos
         self.pos1 = pos1
         self.surface = surface
         self.base = base
         self.yomi = yomi
+        self.pronounce = pronounce
 
     @classmethod
     def _parse_mecab_output(cls, output):
@@ -30,6 +31,7 @@ class Word(object):
             surface (str): word surface format string.
             base (str): word base format string.
             yomi (str): word surface yomi string.
+            pronounce (str): word surfade pronounce string.
         """
         surface = output.split("\t")[0].strip()
         parts = output.split("\t")[1].strip().split(",")
@@ -37,7 +39,8 @@ class Word(object):
         pos1 = parts[1]
         base = parts[6] if '*' != parts[6] else surface
         yomi = parts[7] if len(parts) >= 8 else surface
-        return pos, pos1, surface, base, yomi
+        pronounce = parts[8] if len(parts) >= 9 else surface
+        return pos, pos1, surface, base, yomi, pronounce
 
 
 class Sentence(object):
