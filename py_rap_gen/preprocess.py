@@ -14,6 +14,7 @@ from py_rap_gen import graph
 
 TONE_PATH = 'mecab_tone_yomi.pkl'
 PREFIX_SEARCHER_PATH = 'prefix_searcher.pkl'
+COUNTER_2GRAM_PARH = 'counter_2gram.pkl'
 LEARNER_PATH = 'learner.pkl'
 
 
@@ -66,7 +67,7 @@ def _mix_tone_and_kana(tones, kanas):
         ret.append(tuple(kanas))
     else:
         ret.append(tuple(tones[:-1] + [kanas[-1]]))
-        ret.append(tuple([kanas[0]] + tones[1:]))
+        ret.append(tuple(tones[:-2] + kanas[-2:]))
 
     return ret
 
@@ -157,10 +158,7 @@ def _train_graph(prefix_searcher, tone_list, lcounter_2gram):
                     tones, kanas = tone.convert_tones(w.split()[1])
                     if len(tones) == 0:
                         continue
-                    if random.random() > 0.5:
-                        tones[-1] = kanas[-1]
-                    else:
-                        tones[0] = kanas[0]
+                    tones[-1] = kanas[-1]
                     t.extend(tones)
                     ws.append(w.split()[0])
                     if len(t) >= 10:
@@ -169,12 +167,10 @@ def _train_graph(prefix_searcher, tone_list, lcounter_2gram):
                         ws = []
                 if len(t) != 0:
                     yield t, ws
-                if count >= 1000000:
-                    break
 
     learner = graph.StructuredPerceptron()
     learner.N = 1e7
-    learner.epochs = 1
+    learner.epochs = 10
     learner.construct_feature(list(lcounter_2gram._items))
     learner.train(iteratorWrapper(train_data), prefix_searcher, tone_list)
     return learner
@@ -187,7 +183,7 @@ def main():
     tone_list, lcounter_2gram = _create_tone_list()
     with open(TONE_PATH, 'wb') as w:
         pickle.dump(tone_list, w, pickle.HIGHEST_PROTOCOL)
-    with open('counter_2gram.pkl', 'wb') as w:
+    with open(COUNTER_2GRAM_PARH, 'wb') as w:
         pickle.dump(lcounter_2gram, w, pickle.HIGHEST_PROTOCOL)
     prefix_searcher = trie.DoubleArray(tone_list.keys())
     with open(PREFIX_SEARCHER_PATH, 'wb') as w:
