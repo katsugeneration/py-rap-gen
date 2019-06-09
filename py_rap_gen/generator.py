@@ -165,12 +165,19 @@ def generate_rapv2(s, tone_list, prefix_searcher, learner):
         rap (str): generated rap
     """
     t = []
-    for w in mecab.parse(s).words:
+    is_last_tone = False
+    for w in reversed(mecab.parse(s).words):
         tones, kana = tone.convert_tones(w.pronounce)
         if len(tones) == 0:
             continue
-        tones[-1] = kana[-1]
-        t += tones
+        if not is_last_tone:
+            tones[-1] = kana[-1]
+        else:
+            is_last_tone = False
+        if (w.pos != '名詞' and w.pos != '形容詞' and w.pos != '動詞') and len(tones) == 1:
+            is_last_tone = True
+        t += reversed(tones)
+    t = list(reversed(t))
     g = graph.Graph.construct_graph(prefix_searcher, tone_list, t)
     g.learner = learner
     try:
