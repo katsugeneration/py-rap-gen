@@ -164,13 +164,9 @@ def generate_rapv2(s, tone_list, prefix_searcher, learner):
     Return:
         rap (str): generated rap
     """
-    import cProfile
-    import pstats
-    pr = cProfile.Profile()
-    pr.enable()
     t = []
     for w in mecab.parse(s).words:
-        tones, kana = tone.convert_tones(w.yomi)
+        tones, kana = tone.convert_tones(w.pronounce)
         if len(tones) == 0:
             continue
         tones[-1] = kana[-1]
@@ -187,9 +183,6 @@ def generate_rapv2(s, tone_list, prefix_searcher, learner):
     except graph.SearchShortestPathError:
         return ""
     path = path[:-1]
-    pr.disable()
-    ps = pstats.Stats(pr).sort_stats(*["time", "calls"])
-    ps.print_stats()
     return "".join(p.word for p in path)
 
 
