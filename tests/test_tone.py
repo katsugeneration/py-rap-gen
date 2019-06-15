@@ -14,3 +14,8 @@ def testconvert_tones():
     eq_((['a', 'a', 'a'], ['カ', 'ラ', 'ー']), tone.convert_tones('カラー'))
     eq_(([], []), tone.convert_tones('ー'))
     eq_((['a', 'n', 'a', 'i', 'a'], ['ヴァ', 'ン', 'パ', 'イ', 'ア']), tone.convert_tones('ヴァンパイア'))
+    eq_((['o'], ['ョ']), tone.convert_tones('ョ'))
+
+
+def testconvert_tones_error_case():
+    eq_(([], []), tone.convert_tones('aaaa'))

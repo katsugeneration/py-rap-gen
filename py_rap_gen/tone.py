@@ -30,7 +30,7 @@ def convert_tones(kana):
             del tones[-1]
         for t in tone_types:
             if k in tone_types[t]:
-                if k in mini:
+                if k in mini and len(splitted_kana) != 0:
                     splitted_kana[-1] += k
                 else:
                     splitted_kana.append(k)
