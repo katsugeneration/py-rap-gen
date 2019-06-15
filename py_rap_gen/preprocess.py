@@ -11,10 +11,11 @@ from py_rap_gen import tone
 from py_rap_gen import counter
 from py_rap_gen import trie
 from py_rap_gen import graph
+from py_rap_gen import mecab
 
 TONE_PATH = 'mecab_tone_yomi.pkl'
 PREFIX_SEARCHER_PATH = 'prefix_searcher.pkl'
-COUNTER_2GRAM_PARH = 'counter_2gram.pkl'
+COUNTER_2GRAM_PATH = 'counter_2gram.pkl'
 LEARNER_PATH = 'learner.pkl'
 
 
@@ -47,6 +48,31 @@ def _preprocess_dict(path):
     return _dict
 
 
+def _process_syntax(line):
+    sentence = mecab.parse(line)
+    result = []
+    ret_kana = ""
+    ret_pronounce = ""
+    for word in sentence.words:
+        if word.pos == '記号':
+            continue
+
+        if len(tone.convert_tones(word.pronounce)[0]) == 0:
+            result.append(ret_kana + " " + ret_pronounce)
+            ret_kana = ""
+            ret_pronounce = ""
+            continue
+        elif word.pos1 == '接尾' or word.pos not in ['形容詞', '名詞', '動詞', '副詞']:
+            ret_kana += word.surface
+            ret_pronounce += word.pronounce
+        else:
+            result.append(ret_kana + " " + ret_pronounce)
+            ret_kana = word.surface
+            ret_pronounce = word.pronounce
+    result.append(ret_kana + " " + ret_pronounce)
+    return "\t".join(r for r in result if r != "")
+
+
 def _mix_tone_and_kana(tones, kanas):
     """Return kana and tone mixes list.
 
@@ -68,6 +94,8 @@ def _mix_tone_and_kana(tones, kanas):
     else:
         ret.append(tuple(tones[:-1] + [kanas[-1]]))
         ret.append(tuple(tones[:-2] + kanas[-2:]))
+    if len(tones) >= 3:
+        ret.append(tuple(tones))
 
     return ret
 
@@ -98,11 +126,12 @@ def _create_tone_list():
                 words = [g.BOS.word] + words + [g.EOS.word]
                 yield from [words[i].split()[0] + '_' + words[i+1].split()[0] for i in range(len(words) - 1)]
 
-    lcounter = counter.LossyCounter(epsilon=1e-6)
-    lcounter.count(train_data()))
+    lcounter = counter.LossyCounter(epsilon=1e-5*5)
+    lcounter.count(train_data())
     lcounter_2gram = counter.LossyCounter(epsilon=1e-6)
     lcounter_2gram.count(train_data_2gram(lcounter))
     print(len(lcounter._items))
+    print(len(lcounter_2gram._items))
 
     tone_list = {}
     count = 0
@@ -141,7 +170,7 @@ def _train_graph(prefix_searcher, tone_list, lcounter_2gram):
 
     def train_data():
         count = 0
-        with open("data", 'r') as f:
+        with open("data_syntax2", 'r') as f:
             for line in f:
                 if random.random() > 0.01:
                     continue
@@ -170,7 +199,7 @@ def _train_graph(prefix_searcher, tone_list, lcounter_2gram):
 
     learner = graph.StructuredPerceptron()
     learner.N = 1e7
-    learner.epochs = 10
+    learner.epochs = 1
     learner.construct_feature(list(lcounter_2gram._items))
     learner.train(iteratorWrapper(train_data), prefix_searcher, tone_list)
     return learner
@@ -180,10 +209,14 @@ def main():
     ret = subprocess.call("./download.sh", shell=True)
     if ret != 0:
         return False
+    with open('data', 'w') as w:
+        with open('articles.txt', 'r') as f:
+            for line in f:
+                w.write(_process_syntax(line) + '\n')
     tone_list, lcounter_2gram = _create_tone_list()
     with open(TONE_PATH, 'wb') as w:
         pickle.dump(tone_list, w, pickle.HIGHEST_PROTOCOL)
-    with open(COUNTER_2GRAM_PARH, 'wb') as w:
+    with open(COUNTER_2GRAM_PATH, 'wb') as w:
         pickle.dump(lcounter_2gram, w, pickle.HIGHEST_PROTOCOL)
     prefix_searcher = trie.DoubleArray(tone_list.keys())
     with open(PREFIX_SEARCHER_PATH, 'wb') as w:
