@@ -39,6 +39,35 @@ def test_search_shortest_path_non_vocabulary():
     g.learner = graph.StructuredLearner()
     path = g.search_shortest_path()
 
+def test_search_nbest_path():
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'i', 'o', 'a'))
+    g.learner = graph.StructuredLearner()
+    g.learner.construct_feature(['あおい', 'もか'])
+    g.learner._w[g.learner._feature2index['あおい']] = 99
+    g.learner._w[g.learner._feature2index['もか']] = 99
+    shortest_path = g.search_shortest_path()
+    path = g.search_nbest_path(1)
+    eq_(1, len(path))
+    eq_(shortest_path[0].word, path[0][0].word)
+    eq_(shortest_path[1].word, path[0][1].word)
+
+def test_search_nbest_path_case_2():
+    g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'i', 'o', 'a'))
+    g.learner = graph.StructuredLearner()
+    g.learner.construct_feature(['あおい', 'さとみ', 'もか', 'さとみ_もか', 'あおい_もか'])
+    g.learner._w[g.learner._feature2index['あおい']] = 99
+    g.learner._w[g.learner._feature2index['さとみ']] = 99
+    g.learner._w[g.learner._feature2index['もか']] = 99
+    g.learner._w[g.learner._feature2index['さとみ_もか']] = 1
+    g.learner._w[g.learner._feature2index['あおい_もか']] = 0
+    shortest_path = g.search_shortest_path()
+    path = g.search_nbest_path(2)
+    eq_(2, len(path))
+    eq_(shortest_path[0].word, path[0][0].word)
+    eq_(shortest_path[1].word, path[0][1].word)
+    eq_('さとみ', path[1][0].word)
+    eq_('もか', path[1][1].word)
+
 def test_structured_perceptron_gold_contains_non_vocabulary():
     learner = graph.StructuredPerceptron()
     learner.train([(('a', 'o', 'i', 'o', 'a'),['あお', 'し', 'もさ']), (('a', 'o', 'o', 'a'), ['た', 'と', 'と', 'さ'])], prefix_searcher, tone_list)
