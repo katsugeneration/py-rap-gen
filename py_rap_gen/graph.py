@@ -92,6 +92,21 @@ class Graph(object):
 
         return g
 
+    def _calculate_min_cost(self):
+        """Calculate minimum node cost by viterbi algorithme."""
+        N = len(self.nodes)
+
+        for i in range(1, N):
+            for node in self.nodes[i]:
+                node.cost = sys.maxsize
+                node_cost = self._learner.get_node_cost(node)
+                for prev in self.nodes[node.start_pos]:
+                    edge_cost = self._learner.get_edge_cost(prev, node)
+                    cost = prev.cost + edge_cost + node_cost
+                    if cost < node.cost:
+                        node.cost = cost
+                        node.prev = prev
+
     def search_nbest_path(self, N):
         """Return graph n-bet path by A* algorithme.
 
@@ -110,6 +125,7 @@ class Graph(object):
         eos.start_pos = self.EOS.start_pos
         eos.words = [self.EOS]
         heapq.heappush(queue, (eos.f_cost, eos))
+        self._calculate_min_cost()
 
         # Search N-best paths by A* algorithme.
         while count != N and len(queue) != 0:
@@ -138,21 +154,7 @@ class Graph(object):
         Return:
             path (List[Node]): node list constructs shortest path.
         """
-        N = len(self.nodes)
-
-        # cost calculation (viterbi algorithm)
-        for i in range(1, N):
-            for node in self.nodes[i]:
-                node.cost = sys.maxsize
-                node_cost = self._learner.get_node_cost(node)
-                for prev in self.nodes[node.start_pos]:
-                    edge_cost = self._learner.get_edge_cost(prev, node)
-                    cost = prev.cost + edge_cost + node_cost
-                    if cost < node.cost:
-                        node.cost = cost
-                        node.prev = prev
-
-        # search shortest path
+        self._calculate_min_cost()
         node = self.EOS
         result = []
         while node != self.BOS:
