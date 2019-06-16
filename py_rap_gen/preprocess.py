@@ -94,7 +94,7 @@ def _mix_tone_and_kana(tones, kanas):
     else:
         ret.append(tuple(tones[:-1] + [kanas[-1]]))
         ret.append(tuple(tones[:-2] + kanas[-2:]))
-    if len(tones) >= 3:
+    if len(tones) >= 4:
         ret.append(tuple(tones))
 
     return ret
@@ -126,7 +126,7 @@ def _create_tone_list():
                 words = [g.BOS.word] + words + [g.EOS.word]
                 yield from [words[i].split()[0] + '_' + words[i+1].split()[0] for i in range(len(words) - 1)]
 
-    lcounter = counter.LossyCounter(epsilon=1e-5*5)
+    lcounter = counter.LossyCounter(epsilon=1e-6*5)
     lcounter.count(train_data())
     lcounter_2gram = counter.LossyCounter(epsilon=1e-6)
     lcounter_2gram.count(train_data_2gram(lcounter))
@@ -170,7 +170,7 @@ def _train_graph(prefix_searcher, tone_list, lcounter_2gram):
 
     def train_data():
         count = 0
-        with open("data_syntax2", 'r') as f:
+        with open("data", 'r') as f:
             for line in f:
                 if random.random() > 0.01:
                     continue
