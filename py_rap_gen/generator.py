@@ -153,16 +153,17 @@ def generate_rap(s, tone_list, prefix_searcher):
     )
 
 
-def generate_rapv2(s, tone_list, prefix_searcher, learner):
+def generate_rapv2(s, tone_list, prefix_searcher, learner, N=1):
     """Return generated rap.
 
     Aarg:
-        s (str): target sentence.
+        s (String): target sentence.
         tone_list (Hash[Tuple[String], List[String]]): string to string dictionary.
         prefix_searcher (TrieBase): Trie Prefix Searcher class
         learner (StructuredLearner): pre-trained structured learner
+        N (Int): response numbers.
     Return:
-        rap (str): generated rap
+        rap (List[String]): generated rap
     """
     t = []
     is_last_tone = False
@@ -181,11 +182,13 @@ def generate_rapv2(s, tone_list, prefix_searcher, learner):
     g = graph.Graph.construct_graph(prefix_searcher, tone_list, t)
     g.learner = learner
     try:
-        path = g.search_shortest_path()
+        if N != 1:
+            paths = g.search_nbest_path(N)
+        else:
+            paths = [g.search_shortest_path()]
     except graph.SearchShortestPathError:
         return ""
-    path = path[:-1]
-    return "".join(p.word for p in path)
+    return ["".join(p.word for p in path[:-1]) for path in paths]
 
 
 def main():

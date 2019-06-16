@@ -3,7 +3,7 @@
 import responder
 import pickle
 import pathlib
-from py_rap_gen import generator, graph
+from py_rap_gen import generator
 
 
 # Load pre-trained objects
@@ -23,7 +23,8 @@ api.add_route("/", static=True)
 def greet_world(req, resp):
     # return generating rap
     sentence = req.params['sentence']
-    resp.media = {"result": generator.generate_rapv2(sentence, tone_list, prefix_searcher, learner)}
+    nums = int(req.params['nums'])
+    resp.media = {"result": generator.generate_rapv2(sentence, tone_list, prefix_searcher, learner, nums)}
 
 
 def main():

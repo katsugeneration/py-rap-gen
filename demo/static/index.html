@@ -19,7 +19,9 @@
 
                     <div class="text-center">
                         <p class="h4 mb-4">Result</p>
-                        <div>{{result}}</div>
+                        <div v-for="(value) in result">
+                            <p>{{value}}</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -29,11 +31,12 @@
                 el: "#app",
                 data: {
                     sentence: "",
-                    result: ""
+                    result: "",
+                    nums: 1
                 },
                 methods: {
                     submit: async function() {
-                        var response = await axios.get('./generate?sentence='+this.sentence);
+                        var response = await axios.get('./generate?sentence='+this.sentence+'&nums='+this.nums);
                         this.result = response.data.result
                     }
                 }
