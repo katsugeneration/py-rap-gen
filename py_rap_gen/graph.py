@@ -130,18 +130,18 @@ class Graph(object):
         # Search N-best paths by A* algorithme.
         while count != N and len(queue) != 0:
             path = heapq.heappop(queue)[1]
-            for prev in self.nodes[path.start_pos]:
-                if prev == self.BOS:
-                    # Add one of path to results
-                    paths.append(path.words)
-                    count += 1
-                    continue
+            if path.words[0] == self.BOS:
+                # Add one of path to results
+                paths.append(path.words[1:])
+                count += 1
+                continue
 
+            for prev in self.nodes[path.start_pos]:
                 p = Path()
                 edge_cost = self._learner.get_edge_cost(prev, path.words[0])
                 node_cost = self._learner.get_node_cost(prev)
                 p.g_cost = path.g_cost + edge_cost + node_cost
-                p.f_cost = p.g_cost + prev.cost
+                p.f_cost = p.g_cost + prev.cost - node_cost
                 p.words = [prev] + path.words
                 p.start_pos = prev.start_pos
                 heapq.heappush(queue, (p.f_cost, p))
