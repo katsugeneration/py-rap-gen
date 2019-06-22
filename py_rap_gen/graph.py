@@ -3,6 +3,7 @@
 """Graph Shortes Path Solution."""
 import sys
 import heapq
+import random
 import numpy as np
 
 
@@ -107,11 +108,12 @@ class Graph(object):
                         node.cost = cost
                         node.prev = prev
 
-    def search_nbest_path(self, N):
+    def search_nbest_path(self, N, beam_width=10):
         """Return graph n-bet path by A* algorithme.
 
         Args:
             N (Int): return path nums
+            beam_width (Int): max next path size
 
         Return:
             paths (List[Path]): n-best short path node.
@@ -136,7 +138,9 @@ class Graph(object):
                 count += 1
                 continue
 
-            for prev in self.nodes[path.start_pos]:
+            nodes = self.nodes[path.start_pos]
+            nodes = nodes if len(nodes) < beam_width else random.sample(nodes, beam_width)
+            for prev in nodes:
                 p = Path()
                 edge_cost = self._learner.get_edge_cost(prev, path.words[0])
                 node_cost = self._learner.get_node_cost(prev)
