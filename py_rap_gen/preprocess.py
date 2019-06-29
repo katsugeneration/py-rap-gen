@@ -124,11 +124,13 @@ def _create_tone_list():
                 words = filter(lambda w: w.strip() != '', words)
                 words = [w if w in lcounter._items else graph.UNKNOW_WORD for w in words]
                 words = [g.BOS.word] + words + [g.EOS.word]
-                yield from [words[i].split()[0] + '_' + words[i+1].split()[0] for i in range(len(words) - 1)]
+                yield from [words[i].split()[0] + '_' + words[i+1].split()[0]
+                            for i in range(len(words) - 1)
+                            if words[i] not in graph.UNKNOW_WORD and words[i+1] not in graph.UNKNOW_WORD]
 
-    lcounter = counter.LossyCounter(epsilon=1e-6*5)
+    lcounter = counter.LossyCounter(epsilon=1e-7)
     lcounter.count(train_data())
-    lcounter_2gram = counter.LossyCounter(epsilon=1e-6)
+    lcounter_2gram = counter.LossyCounter(epsilon=1e-7)
     lcounter_2gram.count(train_data_2gram(lcounter))
     print(len(lcounter._items))
     print(len(lcounter_2gram._items))
@@ -198,7 +200,7 @@ def _train_graph(prefix_searcher, tone_list, lcounter_2gram):
                     yield t, ws
 
     learner = graph.StructuredPerceptron()
-    learner.N = 1e7
+    learner.N = 1e8
     learner.epochs = 1
     learner.construct_feature(list(lcounter_2gram._items))
     learner.train(iteratorWrapper(train_data), prefix_searcher, tone_list)
