@@ -68,13 +68,14 @@ class Graph(object):
         self._learner = l
 
     @classmethod
-    def construct_graph(cls, prefix_searcher, string_list, string):
+    def construct_graph(cls, prefix_searcher, string_list, string, beam_width=None):
         """Construct convert graph.
 
         Args:
             prefix_searcher (TrieBase): trie data
             string_list (Hash[Tuple[String], List[String]]): string to string dictionary.
             string (Tuple[String]): target string.
+            beam_width (Int): max prefix size.
 
         Return:
             graph (Graph): new graph object.
@@ -88,8 +89,12 @@ class Graph(object):
         g.nodes[len(string) + 1] = [g.EOS]
 
         for i in range(len(string)):
-            for s in prefix_searcher.prefix_search(string[i:]):
-                g.nodes[i + len(s)].extend([Node(i, str(w)) for w in string_list[s]])
+            words = prefix_searcher.prefix_search(string[i:])
+            for s in words:
+                sl = string_list[s]
+                if beam_width:
+                    sl = sl if len(sl) <= beam_width else random.sample(sl, beam_width)
+                g.nodes[i + len(s)].extend([Node(i, str(w)) for w in sl])
 
         return g
 
@@ -231,6 +236,8 @@ class StructuredLearner(object):
             cost (Int): node cost value.
         """
         feature = self.get_node_feature(node)
+        if UNKNOW_WORD in feature:
+            return 0
         if feature not in self._feature2index:
             if len(self._index2feature) < self._N:
                 self._index2feature.append(feature)
@@ -251,6 +258,8 @@ class StructuredLearner(object):
             cost (Int): edge cost value.
         """
         feature = self.get_edge_feature(prev, node)
+        if UNKNOW_WORD in feature:
+            return 0
         if feature not in self._feature2index:
             if len(self._index2feature) < self._N:
                 self._index2feature.append(feature)
@@ -354,7 +363,7 @@ class StructuredPerceptron(StructuredLearner):
 
         for _ in range(self._epochs):
             for string, gold in train_data:
-                g = Graph.construct_graph(prefix_searcher, string_list, string)
+                g = Graph.construct_graph(prefix_searcher, string_list, string, beam_width=20)
                 g.learner = self
                 try:
                     path = g.search_shortest_path()
