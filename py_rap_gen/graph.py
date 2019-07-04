@@ -113,7 +113,7 @@ class Graph(object):
                         node.cost = cost
                         node.prev = prev
 
-    def search_nbest_path(self, N, beam_width=10):
+    def search_nbest_path(self, N, beam_width=None):
         """Return graph n-bet path by A* algorithme.
 
         Args:
@@ -144,7 +144,8 @@ class Graph(object):
                 continue
 
             nodes = self.nodes[path.start_pos]
-            nodes = nodes if len(nodes) < beam_width else random.sample(nodes, beam_width)
+            if beam_width:
+                nodes = nodes if len(nodes) < beam_width else random.sample(nodes, beam_width)
             for prev in nodes:
                 p = Path()
                 edge_cost = self._learner.get_edge_cost(prev, path.words[0])
@@ -363,7 +364,7 @@ class StructuredPerceptron(StructuredLearner):
 
         for _ in range(self._epochs):
             for string, gold in train_data:
-                g = Graph.construct_graph(prefix_searcher, string_list, string, beam_width=20)
+                g = Graph.construct_graph(prefix_searcher, string_list, string, beam_width=10)
                 g.learner = self
                 try:
                     path = g.search_shortest_path()
