@@ -15,6 +15,12 @@ tone_list = {
     ('i', 'o'): ['みこ', 'しお'],
     ('o', 'a'): ['もか', 'もさ'],
 }
+
+word2pos = {}
+for t in tone_list:
+    for w in tone_list[t]:
+        word2pos[w] = w
+
 prefix_searcher = trie.DoubleArray(tone_list.keys())
 
 
@@ -70,7 +76,7 @@ def test_search_nbest_path_case_2():
 
 def test_structured_perceptron_gold_contains_non_vocabulary():
     learner = graph.StructuredPerceptron()
-    learner.train([(('a', 'o', 'i', 'o', 'a'),['あお', 'し', 'もさ']), (('a', 'o', 'o', 'a'), ['た', 'と', 'と', 'さ'])], prefix_searcher, tone_list)
+    learner.train([(('a', 'o', 'i', 'o', 'a'),['あお', 'し', 'もさ'])], prefix_searcher, tone_list, word2pos)
     g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'i', 'o', 'a'))
     g.learner = learner
     path = g.search_shortest_path()
@@ -84,7 +90,7 @@ def test_structured_perceptron_gold_contains_non_vocabulary():
 
 def test_structured_perceptron_multiple_sentence():
     learner = graph.StructuredPerceptron()
-    learner.train([(('a', 'o', 'i', 'o', 'a'),['あお', 'し', 'もさ']), (('a', 'o', 'o', 'a'), ['あ', 'と', 'と', 'さ'])], prefix_searcher, tone_list)
+    learner.train([(('a', 'o', 'i', 'o', 'a'),['あお', 'し', 'もさ']), (('a', 'o', 'o', 'a'), ['あ', 'と', 'と', 'さ'])], prefix_searcher, tone_list, word2pos)
     g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'i', 'o', 'a'))
     g.learner = learner
     path = g.search_shortest_path()
@@ -112,7 +118,7 @@ def test_structured_perceptron_iterator():
             yield (s, d)
 
     learner = graph.StructuredPerceptron()
-    learner.train(iteratorWrapper(data), prefix_searcher, tone_list)
+    learner.train(iteratorWrapper(data), prefix_searcher, tone_list, word2pos)
     g = graph.Graph.construct_graph(prefix_searcher, tone_list, ('a', 'o', 'i', 'o', 'a'))
     g.learner = learner
     path = g.search_shortest_path()

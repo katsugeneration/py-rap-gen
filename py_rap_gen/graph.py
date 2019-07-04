@@ -297,6 +297,7 @@ class StructuredPerceptron(StructuredLearner):
         super().__init__()
         self._epochs = 1000
         self._vocabs = set()
+        self._word2pos = dict()
 
     @property
     def epochs(self):
@@ -332,30 +333,32 @@ class StructuredPerceptron(StructuredLearner):
         Return:
             feature (String): string represent features.
         """
-        if prev.word in self._vocabs:
-            p = prev.word
+        if prev.word in self._word2pos:
+            p = self._word2pos[prev.word]
         else:
             p = UNKNOW_WORD
 
-        if node.word in self._vocabs:
-            n = node.word
+        if node.word in self._word2pos:
+            n = self._word2pos[node.word]
         else:
             n = UNKNOW_WORD
 
         return p + '_' + n
 
-    def train(self, train_data, prefix_searcher, string_list):
+    def train(self, train_data, prefix_searcher, string_list, word2pos):
         """Construct convert graph.
 
         Args:
             train_data (List[Tuple[Tuple[String], List[String]]]): trainning data construct target string and correct sentenece pairs.
             prefix_searcher (TrieBase): trie data
             string_list (Hash[Tuple[String], List[String]]): string to string dictionary.
+            word2pos (Hash[String, String]): word to pos-tag dictionary.
         """
         vocabs = set()
         for v in string_list.values():
             vocabs |= set(v)
         self._vocabs = vocabs
+        self._word2pos = word2pos
 
         for v in self._vocabs:
             feature = self.get_node_feature(Node(-1, v))
