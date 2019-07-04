@@ -17,6 +17,7 @@ TONE_PATH = 'mecab_tone_yomi.pkl'
 PREFIX_SEARCHER_PATH = 'prefix_searcher.pkl'
 COUNTER_2GRAM_PATH = 'counter_2gram.pkl'
 LEARNER_PATH = 'learner.pkl'
+DATA_PATH = 'data'
 
 
 def _build_neologd(path):
@@ -49,27 +50,47 @@ def _preprocess_dict(path):
 
 
 def _process_syntax(line):
+    """Return kana and pronounce list for input line.
+
+    Args:
+        line (String): parse target strings
+
+    Return:
+        result (String): kana1 + ' ' + pronounce1 + '\t' + kana2 + ' ' + pronounce2 ... sforamted string.
+    """
     sentence = mecab.parse(line)
     result = []
     ret_kana = ""
     ret_pronounce = ""
+    ret_pos = ""
     for word in sentence.words:
         if word.pos == '記号':
             continue
 
         if len(tone.convert_tones(word.pronounce)[0]) == 0:
-            result.append(ret_kana + " " + ret_pronounce)
+            result.append(ret_kana + " " + ret_pronounce + " " + ret_pos)
             ret_kana = ""
             ret_pronounce = ""
+            ret_pos = ""
             continue
-        elif word.pos1 == '接尾' or word.pos not in ['形容詞', '名詞', '動詞', '副詞']:
+        elif '名詞' not in ret_pos and word.pos not in ['接続詞', '形容詞', '動詞', '名詞', '連体詞', '副詞']:
             ret_kana += word.surface
             ret_pronounce += word.pronounce
+            if ret_pos == '':
+                ret_pos = word.pos
         else:
-            result.append(ret_kana + " " + ret_pronounce)
+            result.append(ret_kana + " " + ret_pronounce + " " + ret_pos)
             ret_kana = word.surface
             ret_pronounce = word.pronounce
-    result.append(ret_kana + " " + ret_pronounce)
+            if word.pos == '名詞':
+                ret_pos = word.pos + '-' + word.pos1
+            elif word.pos == '助詞':
+                ret_pos = word.pos + '-' + word.surface
+            elif word.pos == '動詞':
+                ret_pos = word.pos + '-' + word.pos1
+            else:
+                ret_pos = word.pos
+    result.append(ret_kana + " " + ret_pronounce + " " + ret_pos)
     return "\t".join(r for r in result if r != "")
 
 
@@ -108,7 +129,7 @@ def _create_tone_list():
     """
 
     def train_data():
-        with open("data", 'r') as f:
+        with open(DATA_PATH, 'r') as f:
             for line in f:
                 line = line.strip()
                 words = line.split('\t')
@@ -117,7 +138,7 @@ def _create_tone_list():
 
     def train_data_2gram(lcounter):
         g = graph.Graph()
-        with open("data", 'r') as f:
+        with open(DATA_PATH, 'r') as f:
             for line in f:
                 line = line.strip()
                 words = line.split('\t')
@@ -172,10 +193,8 @@ def _train_graph(prefix_searcher, tone_list, lcounter_2gram):
 
     def train_data():
         count = 0
-        with open("data", 'r') as f:
+        with open(DATA_PATH, 'r') as f:
             for line in f:
-                if random.random() > 0.01:
-                    continue
                 count += 1
                 line = line.strip()
                 words = list(filter(lambda w: w.strip() != '', line.split('\t')))
@@ -192,15 +211,11 @@ def _train_graph(prefix_searcher, tone_list, lcounter_2gram):
                     tones[-1] = kanas[-1]
                     t.extend(tones)
                     ws.append(w.split()[0])
-                    if len(t) >= 10:
-                        yield t, ws
-                        t = []
-                        ws = []
                 if len(t) != 0:
                     yield t, ws
 
     learner = graph.StructuredPerceptron()
-    learner.N = 1e8
+    learner.N = 1e7
     learner.epochs = 1
     learner.construct_feature(list(lcounter_2gram._items))
     learner.train(iteratorWrapper(train_data), prefix_searcher, tone_list)
@@ -211,7 +226,7 @@ def main():
     ret = subprocess.call("./download.sh", shell=True)
     if ret != 0:
         return False
-    with open('data', 'w') as w:
+    with open(DATA_PATH, 'w') as w:
         with open('articles.txt', 'r') as f:
             for line in f:
                 w.write(_process_syntax(line) + '\n')
