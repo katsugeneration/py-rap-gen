@@ -2,6 +2,7 @@
 # Copyright 2019 Katsuya Shimabukuro.
 """Yomi data preprocessing module.
 """
+import os
 import subprocess
 import pandas as pd
 import pathlib
@@ -27,6 +28,18 @@ def _build_neologd(path):
     if ret != 0:
         return False
     ret = subprocess.call("cd " + path + "; libexec/make-mecab-ipadic-neologd.sh", shell=True)
+    if ret != 0:
+        return False
+    return True
+
+
+def _install_neologd():
+    """Build neologd dictionary."""
+    ret = subprocess.call("git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git ipadic-neologd", shell=True)
+    if ret != 0:
+        return False
+    os.makedirs('./lib', exist_ok=True)
+    ret = subprocess.call("cd ipadic-neologd; ./bin/install-mecab-ipadic-neologd -p $(pwd)/../lib/ -y --max_baseform_length 4; rm -rf ipadic-neologd", shell=True)
     if ret != 0:
         return False
     return True
@@ -59,6 +72,7 @@ def _process_syntax(line):
     Return:
         result (String): kana1 + ' ' + pronounce1 + '\t' + kana2 + ' ' + pronounce2 ... sforamted string.
     """
+    mecab.tagger = mecab.MeCab.Tagger("-d ./lib")
     sentence = mecab.parse(line)
     result = []
     ret_kana = ""
@@ -74,11 +88,11 @@ def _process_syntax(line):
             ret_pronounce = ""
             ret_pos = ""
             continue
-        # elif '名詞' not in ret_pos and word.pos not in ['接続詞', '形容詞', '動詞', '名詞', '連体詞', '副詞']:
-        #     ret_kana += word.surface
-        #     ret_pronounce += word.pronounce
-        #     if ret_pos == '':
-        #         ret_pos = word.pos
+        elif ret_pos.startswith('動詞') and word.pos not in ['接続詞', '形容詞', '動詞', '名詞', '連体詞', '副詞']:
+            ret_kana += word.surface
+            ret_pronounce += word.pronounce
+            if ret_pos == '':
+                ret_pos = word.pos
         else:
             result.append(ret_kana + " " + ret_pronounce + " " + ret_pos)
             ret_kana = word.surface
@@ -146,7 +160,7 @@ def _create_tone_list():
                 words = [' '.join([g.BOS.word]*3)] + words + [' '.join([g.EOS.word]*3)]
                 yield from [words[i].split()[2] + '_' + words[i+1].split()[2] for i in range(len(words) - 1)]
 
-    lcounter = counter.LossyCounter(epsilon=1e-7)
+    lcounter = counter.LossyCounter(epsilon=1e-6)
     lcounter.count(train_data())
     lcounter_2gram = counter.LossyCounter(epsilon=1e-7)
     lcounter_2gram.count(train_data_2gram())
@@ -229,6 +243,9 @@ def _train_graph(prefix_searcher, tone_list, lcounter_2gram, word2pos):
 def main():
     ret = subprocess.call("./download.sh", shell=True)
     if ret != 0:
+        return False
+    ret = _install_neologd()
+    if not ret:
         return False
     with open(DATA_PATH, 'w') as w:
         with open('articles.txt', 'r') as f:
