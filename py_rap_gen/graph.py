@@ -179,7 +179,8 @@ class Graph(object):
 class StructuredLearner(object):
     def __init__(self):
         self._N = 10000
-        self._w = np.ones((self._N, ), dtype=np.float32) * 1000
+        self._default_cost = 1000
+        self._w = np.ones((self._N, ), dtype=np.float32) * self._default_cost
         self._feature2index = {}
         self._index2feature = []
 
@@ -191,7 +192,17 @@ class StructuredLearner(object):
     @N.setter
     def N(self, val):
         self._N = int(val)
-        self._w = np.ones((self._N, ), dtype=np.float32) * 1000
+        self._w = np.ones((self._N, ), dtype=np.float32) * self._default_cost
+
+    @property
+    def default_cost(self):
+        """default cost value."""
+        return self._default_cost
+
+    @default_cost.setter
+    def default_cost(self, val):
+        self._default_cost = int(val)
+        self._w = np.ones((self._N, ), dtype=np.float32) * self._default_cost
 
     def construct_feature(self, features):
         """Construct feature dictionary.
@@ -238,13 +249,13 @@ class StructuredLearner(object):
         """
         feature = self.get_node_feature(node)
         if UNKNOW_WORD in feature:
-            return 0
+            return self._default_cost
         if feature not in self._feature2index:
             if len(self._index2feature) < self._N:
                 self._index2feature.append(feature)
                 self._feature2index[feature] = len(self._index2feature) - 1
             else:
-                return 0
+                return self._default_cost
 
         return self._w[self._feature2index[feature]]
 
@@ -260,13 +271,13 @@ class StructuredLearner(object):
         """
         feature = self.get_edge_feature(prev, node)
         if UNKNOW_WORD in feature:
-            return 0
+            return self._default_cost
         if feature not in self._feature2index:
             if len(self._index2feature) < self._N:
                 self._index2feature.append(feature)
                 self._feature2index[feature] = len(self._index2feature) - 1
             else:
-                return 0
+                return self._default_cost
 
         return self._w[self._feature2index[feature]]
 
